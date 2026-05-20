@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "526706945942",
+    "project_id": "lifetours-452a8",
+    "storage_bucket": "lifetours-452a8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:526706945942:android:3b145837d725e0bf7537b7",
+        "android_client_info": {
+          "package_name": "com.life.tours"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSYwJYwOswrZkBiEP7OVufVYfPiGw_daw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
