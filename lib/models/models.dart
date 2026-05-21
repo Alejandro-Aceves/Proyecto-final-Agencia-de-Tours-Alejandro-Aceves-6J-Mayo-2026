@@ -9,3 +9,4 @@ export 'tour_model.dart';
 export 'reservation_model.dart';
 export 'review_model.dart';
 export 'favorite_model.dart';
+export 'cart_item_model.dart';

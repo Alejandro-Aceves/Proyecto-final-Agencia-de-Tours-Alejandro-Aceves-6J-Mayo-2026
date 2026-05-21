@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:lifetours/theme.dart';
 import 'package:lifetours/models/models.dart';
 import 'package:lifetours/providers/providers.dart';
@@ -66,7 +67,16 @@ class _FavoritesDetailScreenState extends State<FavoritesDetailScreen> {
               itemCount: provider.favorites.length,
               itemBuilder: (context, index) {
                 final fav = provider.favorites[index];
-                return _FavoriteCard(favorite: fav);
+                return _FavoriteCard(
+                  favorite: fav,
+                  onRemove: () => provider.toggleFavorite(
+                    tourId: fav.tourId,
+                    tourTitle: fav.tourTitle,
+                    tourImageUrl: fav.tourImageUrl,
+                    destinationName: fav.destinationName,
+                    price: fav.price,
+                  ),
+                );
               },
             );
           },
@@ -79,20 +89,43 @@ class _FavoritesDetailScreenState extends State<FavoritesDetailScreen> {
 
 class _FavoriteCard extends StatelessWidget {
   final FavoriteModel favorite;
-  const _FavoriteCard({required this.favorite});
+  final VoidCallback? onRemove;
+  const _FavoriteCard({required this.favorite, this.onRemove});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         border: Border.all(color: AppColors.primary),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: CachedNetworkImage(
+              imageUrl: favorite.tourImageUrl,
+              width: 72,
+              height: 72,
+              fit: BoxFit.cover,
+              placeholder: (_, __) => Container(
+                width: 72,
+                height: 72,
+                color: AppColors.accent.withAlpha(60),
+                child: Icon(Icons.image_outlined, color: AppColors.accent),
+              ),
+              errorWidget: (_, __, ___) => Container(
+                width: 72,
+                height: 72,
+                color: AppColors.accent.withAlpha(60),
+                child: Icon(Icons.image_outlined, color: AppColors.accent),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,7 +155,10 @@ class _FavoriteCard extends StatelessWidget {
               ],
             ),
           ),
-          Icon(Icons.favorite, color: AppColors.accent),
+          IconButton(
+            icon: const Icon(Icons.favorite, color: Colors.red),
+            onPressed: onRemove,
+          ),
         ],
       ),
     );

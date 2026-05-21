@@ -21,8 +21,9 @@ class FirestoreCollections {
   static const String reservations = 'reservations';
   static const String reviews      = 'reviews';
 
-  // Subcolección dentro de users/{uid}
+  // Subcolecciones dentro de users/{uid}
   static const String favorites    = 'favorites';
+  static const String cart         = 'cart';
 }
 
 // ── Campos por colección ──────────────────────────────────────────────────────
@@ -104,4 +105,15 @@ class FavoriteFields {
   static const String destinationName = 'destinationName';
   static const String price           = 'price';
   static const String savedAt         = 'savedAt';
+}
+
+class CartItemFields {
+  CartItemFields._();
+  static const String tourId          = 'tourId';
+  static const String tourTitle       = 'tourTitle';
+  static const String destinationName = 'destinationName';
+  static const String pricePerPerson  = 'pricePerPerson';
+  static const String participants    = 'participants';
+  static const String imageUrl        = 'imageUrl';
+  static const String travelDate      = 'travelDate';
 }

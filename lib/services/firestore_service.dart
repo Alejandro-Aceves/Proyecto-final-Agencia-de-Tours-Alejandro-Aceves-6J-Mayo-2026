@@ -134,9 +134,14 @@ class FirestoreService {
     return _firestore
         .collection(FirestoreCollections.reservations)
         .where(ReservationFields.userId, isEqualTo: userId)
-        .orderBy(ReservationFields.createdAt, descending: true)
         .snapshots()
-        .map((snap) => snap.docs.map((doc) => ReservationModel.fromDocumentSnapshot(doc)).toList());
+        .map((snap) {
+      final list = snap.docs
+          .map((doc) => ReservationModel.fromDocumentSnapshot(doc))
+          .toList();
+      list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return list;
+    });
   }
 
   Stream<List<ReservationModel>> allReservationsStream() {
@@ -187,6 +192,14 @@ class FirestoreService {
     final snap = await _firestore
         .collection(FirestoreCollections.reviews)
         .where(ReviewFields.tourId, isEqualTo: tourId)
+        .orderBy(ReviewFields.createdAt, descending: true)
+        .get();
+    return snap.docs.map((doc) => ReviewModel.fromDocumentSnapshot(doc)).toList();
+  }
+
+  Future<List<ReviewModel>> getReviews() async {
+    final snap = await _firestore
+        .collection(FirestoreCollections.reviews)
         .orderBy(ReviewFields.createdAt, descending: true)
         .get();
     return snap.docs.map((doc) => ReviewModel.fromDocumentSnapshot(doc)).toList();
@@ -246,6 +259,68 @@ class FirestoreService {
         .delete();
   }
 
+  // ── Cart (subcolección users/{uid}/cart) ─────────────────────────────────────
+
+  Stream<List<CartItemModel>> userCartStream(String userId) {
+    return _firestore
+        .collection(FirestoreCollections.users)
+        .doc(userId)
+        .collection(FirestoreCollections.cart)
+        .snapshots()
+        .map((snap) =>
+            snap.docs.map((doc) => CartItemModel.fromDocumentSnapshot(doc)).toList());
+  }
+
+  Future<List<CartItemModel>> getUserCart(String userId) async {
+    final snap = await _firestore
+        .collection(FirestoreCollections.users)
+        .doc(userId)
+        .collection(FirestoreCollections.cart)
+        .get();
+    return snap.docs
+        .map((doc) => CartItemModel.fromDocumentSnapshot(doc))
+        .toList();
+  }
+
+  Future<void> addCartItem(String userId, CartItemModel item) async {
+    await _firestore
+        .collection(FirestoreCollections.users)
+        .doc(userId)
+        .collection(FirestoreCollections.cart)
+        .doc(item.tourId)
+        .set(item.toMap());
+  }
+
+  Future<void> updateCartItemParticipants(
+      String userId, String tourId, int participants) async {
+    await _firestore
+        .collection(FirestoreCollections.users)
+        .doc(userId)
+        .collection(FirestoreCollections.cart)
+        .doc(tourId)
+        .update({CartItemFields.participants: participants});
+  }
+
+  Future<void> removeCartItem(String userId, String tourId) async {
+    await _firestore
+        .collection(FirestoreCollections.users)
+        .doc(userId)
+        .collection(FirestoreCollections.cart)
+        .doc(tourId)
+        .delete();
+  }
+
+  Future<void> clearCart(String userId) async {
+    final snap = await _firestore
+        .collection(FirestoreCollections.users)
+        .doc(userId)
+        .collection(FirestoreCollections.cart)
+        .get();
+    for (final doc in snap.docs) {
+      await doc.reference.delete();
+    }
+  }
+
   // ── Users ──────────────────────────────────────────────────────────────────
 
   Stream<List<UserModel>> allUsersStream() {
@@ -262,6 +337,10 @@ class FirestoreService {
         .orderBy(UserFields.createdAt, descending: true)
         .get();
     return snap.docs.map((doc) => UserModel.fromDocumentSnapshot(doc)).toList();
+  }
+
+  Future<void> addUser(UserModel user) async {
+    await _firestore.collection(FirestoreCollections.users).doc(user.uid).set(user.toMap());
   }
 
   Future<void> updateUser(UserModel user) async {

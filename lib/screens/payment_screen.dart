@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:lifetours/theme.dart';
+import 'package:lifetours/models/models.dart';
 import 'package:lifetours/providers/providers.dart';
 
 class PaymentScreen extends StatefulWidget {
-  const PaymentScreen({super.key});
+  final CartItemModel? cartItem;
+
+  const PaymentScreen({super.key, this.cartItem});
 
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
@@ -17,6 +20,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   final _expiryController = TextEditingController();
   final _cvvController = TextEditingController();
   final _nameController = TextEditingController();
+  bool _processing = false;
 
   @override
   void dispose() {
@@ -27,24 +31,75 @@ class _PaymentScreenState extends State<PaymentScreen> {
     super.dispose();
   }
 
-  void _pay() {
+  Future<void> _pay() async {
     if (!_formKey.currentState!.validate()) return;
     final auth = context.read<AuthProvider>();
-    if (!auth.isAuthenticated) {
+    if (!auth.isAuthenticated || auth.userModel == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Debes iniciar sesión para pagar')),
       );
       return;
     }
+
+    setState(() => _processing = true);
+
+    final reservationProvider = context.read<ReservationProvider>();
+    final cartProvider = context.read<CartProvider>();
+    final uid = auth.uid!;
+    final userName = auth.userModel!.name;
+
+    if (widget.cartItem != null) {
+      final item = widget.cartItem!;
+      await reservationProvider.createReservation(
+        userId: uid,
+        userName: userName,
+        tourId: item.tourId,
+        tourTitle: item.tourTitle,
+        tourImageUrl: item.imageUrl,
+        destinationName: item.destinationName,
+        pricePerPerson: item.pricePerPerson,
+        participants: item.participants,
+        totalPrice: item.totalPrice,
+        travelDate: item.travelDate ?? DateTime.now(),
+        notes: 'Comprado desde el carrito',
+      );
+      await cartProvider.removeItem(item.tourId);
+    } else {
+      for (final item in cartProvider.items) {
+        await reservationProvider.createReservation(
+          userId: uid,
+          userName: userName,
+          tourId: item.tourId,
+          tourTitle: item.tourTitle,
+          tourImageUrl: item.imageUrl,
+          destinationName: item.destinationName,
+          pricePerPerson: item.pricePerPerson,
+          participants: item.participants,
+          totalPrice: item.totalPrice,
+          travelDate: item.travelDate ?? DateTime.now(),
+          notes: 'Comprado desde el carrito',
+        );
+      }
+      await cartProvider.clear();
+    }
+
+    if (!mounted) return;
+    setState(() => _processing = false);
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Pago exitoso'),
+        content: Text(
+          widget.cartItem != null
+              ? 'Pago exitoso: ${widget.cartItem!.tourTitle}'
+              : 'Pago exitoso',
+        ),
         backgroundColor: AppColors.primary,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         duration: const Duration(seconds: 2),
       ),
     );
+
     Future.delayed(const Duration(milliseconds: 600), () {
       if (mounted) {
         context.go('/my-reservations');
@@ -54,6 +109,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final label = widget.cartItem != null
+        ? 'Pagar ${widget.cartItem!.tourTitle}'
+        : 'Pagar';
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -178,8 +237,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _pay,
-                    child: const Text('Pagar', style: TextStyle(fontSize: 16)),
+                    onPressed: _processing ? null : _pay,
+                    child: _processing
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppColors.background,
+                            ),
+                          )
+                        : Text(label, style: const TextStyle(fontSize: 16)),
                   ),
                 ),
                 const SizedBox(height: 24),

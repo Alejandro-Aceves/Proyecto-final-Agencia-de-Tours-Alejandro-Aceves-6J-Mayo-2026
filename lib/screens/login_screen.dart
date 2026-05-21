@@ -45,11 +45,13 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               const SizedBox(height: 24),
               const Text(
                 'Hola de nuevo',
@@ -139,6 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
               ),
             ],
+            ),
           ),
         ),
       ),

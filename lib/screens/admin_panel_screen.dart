@@ -90,6 +90,11 @@ class AdminPanelScreen extends StatelessWidget {
                       label: 'Reservas',
                       onTap: () => context.push('/admin/users', extra: 'reservations'),
                     ),
+                    const Divider(),
+                    _TableRow(
+                      label: 'Resenas',
+                      onTap: () => context.push('/admin/users', extra: 'reviews'),
+                    ),
                   ],
                 ),
               ),

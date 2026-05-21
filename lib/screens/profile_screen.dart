@@ -108,7 +108,13 @@ class ProfileScreen extends StatelessWidget {
                 onTap: () => context.push('/profile-detail'),
               ),
               const Divider(indent: 24, endIndent: 24),
-              _MenuTile(
+               _MenuTile(
+                icon: Icons.shopping_cart_outlined,
+                title: 'Carrito',
+                onTap: () => context.push('/cart'),
+              ),
+              const Divider(indent: 24, endIndent: 24),
+               _MenuTile(
                 icon: Icons.info_outline,
                 title: 'Informacion',
                 onTap: () => context.push('/info'),
@@ -168,7 +174,7 @@ class ProfileScreen extends StatelessWidget {
                           child: ElevatedButton(
                             onPressed: () => auth.signOut(),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.accent,
+                              backgroundColor: Colors.redAccent,
                               foregroundColor: AppColors.background,
                             ),
                             child: const Text('Cerrar Sesion',

@@ -8,6 +8,7 @@ import 'package:lifetours/theme.dart';
 import 'package:lifetours/firebase_options.dart';
 import 'package:lifetours/screens/screens.dart';
 import 'package:lifetours/providers/providers.dart';
+import 'package:lifetours/models/models.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -111,7 +112,10 @@ class _LifeToursAppState extends State<LifeToursApp> {
           path: '/favorites-detail',
           builder: (_, __) => const FavoritesDetailScreen(),
         ),
-        GoRoute(path: '/payment', builder: (_, __) => const PaymentScreen()),
+        GoRoute(
+          path: '/payment',
+          builder: (_, state) => PaymentScreen(cartItem: state.extra as CartItemModel?),
+        ),
         GoRoute(
           path: '/profile-detail',
           builder: (_, __) => const ProfileDetailScreen(),
@@ -131,6 +135,7 @@ class _LifeToursAppState extends State<LifeToursApp> {
         ChangeNotifierProvider(create: (_) => ReviewProvider()),
         ChangeNotifierProvider(create: (_) => ReservationProvider()),
         ChangeNotifierProvider(create: (_) => FavoriteProvider()),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
       ],
       child: MaterialApp.router(
         title: 'Life Tours',

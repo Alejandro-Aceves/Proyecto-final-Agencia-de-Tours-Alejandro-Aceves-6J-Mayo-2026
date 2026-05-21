@@ -42,6 +42,9 @@ class FavoriteProvider extends ChangeNotifier {
     super.dispose();
   }
 
+  bool isFavoriteLocally(String tourId) =>
+      _favorites.any((f) => f.tourId == tourId);
+
   Future<bool> isFavorite(String tourId) async {
     if (_userId == null) return false;
     return _firestoreService.isFavorite(_userId!, tourId);

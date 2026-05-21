@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:lifetours/theme.dart';
 import 'package:lifetours/models/models.dart';
 import 'package:lifetours/services/services.dart';
+import 'package:lifetours/providers/providers.dart';
 import 'package:lifetours/widgets/bottom_nav_bar.dart';
 
 class DestinationDetailScreen extends StatefulWidget {
@@ -24,6 +27,13 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
   void initState() {
     super.initState();
     _loadData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final fav = context.read<FavoriteProvider>();
+      if (fav.userId == null) {
+        final uid = context.read<AuthProvider>().uid;
+        if (uid != null) fav.init(uid);
+      }
+    });
   }
 
   void _loadData() async {
@@ -42,94 +52,104 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Icon(Icons.favorite_border, color: AppColors.primary),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: _loading
-            ? const Center(child: CircularProgressIndicator())
-            : _destination == null
-                ? const Center(child: Text('Destino no encontrado'))
-                : SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 8),
-                          Text(
-                            _destination!.name,
-                            style: const TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.primary,
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${_destination!.city}, ${_destination!.country}',
-                            style: const TextStyle(fontSize: 16, color: AppColors.accent),
-                          ),
-                          const SizedBox(height: 24),
-                          Container(
-                            width: double.infinity,
-                            height: 180,
-                            decoration: BoxDecoration(
-                              color: AppColors.primary,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            alignment: Alignment.center,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 240,
+            pinned: true,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: AppColors.background),
+              onPressed: () => context.pop(),
+            ),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: Icon(Icons.favorite_border, color: AppColors.background),
+              ),
+            ],
+            flexibleSpace: FlexibleSpaceBar(
+              background: ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(24),
+                  bottomRight: Radius.circular(24),
+                ),
+                child: _destination != null
+                    ? CachedNetworkImage(
+                        imageUrl: _destination!.imageUrl,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: 240,
+                        placeholder: (_, __) => Container(
+                          color: AppColors.primary,
+                          child: Center(
                             child: Icon(Icons.image_outlined, size: 64, color: AppColors.background),
                           ),
-                          const SizedBox(height: 24),
-                          const Text(
-                            'Detalles',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.primary,
+                        ),
+                        errorWidget: (_, __, ___) => Container(
+                          color: AppColors.primary,
+                          child: Center(
+                            child: Icon(Icons.image_outlined, size: 64, color: AppColors.background),
+                          ),
+                        ),
+                      )
+                    : Container(
+                        color: AppColors.primary,
+                        child: Center(
+                          child: Icon(Icons.image_outlined, size: 64, color: AppColors.background),
+                        ),
+                      ),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: _loading
+                ? const SizedBox(
+                    height: 200,
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                : _destination == null
+                    ? const Center(child: Text('Destino no encontrado'))
+                    : Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 24),
+                            Text(
+                              _destination!.name,
+                              style: const TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.primary,
+                                letterSpacing: -0.5,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            _destination!.description,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: AppColors.accent,
-                              height: 1.6,
+                            const SizedBox(height: 4),
+                            Text(
+                              '${_destination!.city}, ${_destination!.country}',
+                              style: const TextStyle(fontSize: 16, color: AppColors.accent),
                             ),
-                          ),
-                          const SizedBox(height: 24),
-                          const Text(
-                            'Actividades',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: _destination!.activities
-                                .map((a) => _ActivityChip(label: a))
-                                .toList(),
-                          ),
-                          if (_tours.isNotEmpty) ...[
                             const SizedBox(height: 24),
                             const Text(
-                              'Tours disponibles',
+                              'Detalles',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              _destination!.description,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: AppColors.accent,
+                                height: 1.6,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            const Text(
+                              'Actividades',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
@@ -137,22 +157,61 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
                               ),
                             ),
                             const SizedBox(height: 12),
-                            ...List.generate(_tours.length, (i) {
-                              final tour = _tours[i];
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 12),
-                                child: _TourListItem(
-                                  tour: tour,
-                                  onTap: () => context.push('/booking', extra: tour.id),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: _destination!.activities
+                                  .map((a) => _ActivityChip(label: a))
+                                  .toList(),
+                            ),
+                            if (_tours.isNotEmpty) ...[
+                              const SizedBox(height: 24),
+                              const Text(
+                                'Tours disponibles',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.primary,
                                 ),
-                              );
-                            }),
+                              ),
+                              const SizedBox(height: 12),
+                              ...List.generate(_tours.length, (i) {
+                                final tour = _tours[i];
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 12),
+                                  child: Consumer<FavoriteProvider>(
+                                    builder: (context, favProv, _) {
+                                      final isFav = favProv.isFavoriteLocally(tour.id);
+                                      return _TourListItem(
+                                        tour: tour,
+                                        isFavorite: isFav,
+                                        onTap: () => context.push('/booking', extra: tour.id),
+                                        onToggleFavorite: () {
+                                          final auth = context.read<AuthProvider>();
+                                          if (auth.uid == null) return;
+                                          if (favProv.userId == null) {
+                                            favProv.init(auth.uid!);
+                                          }
+                                          favProv.toggleFavorite(
+                                            tourId: tour.id,
+                                            tourTitle: tour.title,
+                                            tourImageUrl: tour.imageUrl,
+                                            destinationName: tour.destinationName,
+                                            price: tour.price,
+                                          );
+                                        },
+                                      );
+                                    },
+                                  ),
+                                );
+                              }),
+                            ],
+                            const SizedBox(height: 32),
                           ],
-                          const SizedBox(height: 32),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
+          ),
+        ],
       ),
       bottomNavigationBar: const AppBottomNavBar(currentIndex: 1),
     );
@@ -185,8 +244,15 @@ class _ActivityChip extends StatelessWidget {
 
 class _TourListItem extends StatelessWidget {
   final TourModel tour;
+  final bool isFavorite;
   final VoidCallback? onTap;
-  const _TourListItem({required this.tour, this.onTap});
+  final VoidCallback? onToggleFavorite;
+  const _TourListItem({
+    required this.tour,
+    this.isFavorite = false,
+    this.onTap,
+    this.onToggleFavorite,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -194,13 +260,35 @@ class _TourListItem extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           border: Border.all(color: AppColors.primary),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: CachedNetworkImage(
+                imageUrl: tour.imageUrl,
+                width: 72,
+                height: 72,
+                fit: BoxFit.cover,
+                placeholder: (_, __) => Container(
+                  width: 72,
+                  height: 72,
+                  color: AppColors.accent.withAlpha(60),
+                  child: Icon(Icons.image_outlined, color: AppColors.accent),
+                ),
+                errorWidget: (_, __, ___) => Container(
+                  width: 72,
+                  height: 72,
+                  color: AppColors.accent.withAlpha(60),
+                  child: Icon(Icons.image_outlined, color: AppColors.accent),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,6 +316,14 @@ class _TourListItem extends StatelessWidget {
                 fontWeight: FontWeight.w600,
                 color: AppColors.accent,
               ),
+            ),
+            const SizedBox(width: 8),
+            IconButton(
+              icon: Icon(
+                isFavorite ? Icons.favorite : Icons.favorite_border,
+                color: isFavorite ? Colors.red : AppColors.accent,
+              ),
+              onPressed: onToggleFavorite,
             ),
           ],
         ),
