@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:lifetours/theme.dart';
 import 'package:lifetours/providers/providers.dart';
+import 'package:lifetours/i18n/translations.dart';
 import 'package:lifetours/widgets/bottom_nav_bar.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -10,6 +11,9 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final lang = context.watch<SettingsProvider>().locale.languageCode;
+    final t = (String key) => AppTranslations.t(key, lang);
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -17,14 +21,14 @@ class ProfileScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 40),
-              const Padding(
-                padding: EdgeInsets.only(left: 24),
+              Padding(
+                padding: const EdgeInsets.only(left: 24),
                 child: Text(
-                  'Cuenta',
+                  t('Cuenta'),
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.primary,
+                    color: context.primary,
                     letterSpacing: -0.5,
                   ),
                 ),
@@ -39,20 +43,20 @@ class ProfileScreen extends StatelessWidget {
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.primary),
+                          border: Border.all(color: context.primary),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
                           children: [
                             CircleAvatar(
                               radius: 24,
-                              backgroundColor: AppColors.primary,
+                              backgroundColor: context.primary,
                               child: Text(
                                 auth.userModel!.name.isNotEmpty
                                     ? auth.userModel!.name[0].toUpperCase()
                                     : '?',
-                                style: const TextStyle(
-                                  color: AppColors.background,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onPrimary,
                                   fontSize: 20,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -65,17 +69,17 @@ class ProfileScreen extends StatelessWidget {
                                 children: [
                                   Text(
                                     auth.userModel!.name,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w600,
-                                      color: AppColors.primary,
+                                      color: context.primary,
                                     ),
                                   ),
                                   Text(
                                     auth.userModel!.email,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 14,
-                                      color: AppColors.accent,
+                                      color: context.accent,
                                     ),
                                   ),
                                 ],
@@ -86,11 +90,11 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     );
                   }
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Text(
-                      'Inicia sesión para ver tu perfil',
-                      style: TextStyle(fontSize: 16, color: AppColors.accent),
+                      t('Inicia sesión para ver tu perfil'),
+                      style: TextStyle(fontSize: 16, color: context.accent),
                     ),
                   );
                 },
@@ -98,32 +102,38 @@ class ProfileScreen extends StatelessWidget {
               const SizedBox(height: 24),
               _MenuTile(
                 icon: Icons.confirmation_number_outlined,
-                title: 'Reservaciones',
+                title: t('Reservaciones'),
                 onTap: () => context.push('/my-reservations'),
               ),
               const Divider(indent: 24, endIndent: 24),
               _MenuTile(
                 icon: Icons.person_outline,
-                title: 'Perfil',
+                title: t('Perfil'),
                 onTap: () => context.push('/profile-detail'),
               ),
               const Divider(indent: 24, endIndent: 24),
                _MenuTile(
                 icon: Icons.shopping_cart_outlined,
-                title: 'Carrito',
+                title: t('Carrito'),
                 onTap: () => context.push('/cart'),
               ),
               const Divider(indent: 24, endIndent: 24),
                _MenuTile(
                 icon: Icons.info_outline,
-                title: 'Informacion',
+                title: t('Informacion'),
                 onTap: () => context.push('/info'),
               ),
               const Divider(indent: 24, endIndent: 24),
               _MenuTile(
                 icon: Icons.favorite_border,
-                title: 'Favoritos',
+                title: t('Favoritos'),
                 onTap: () => context.push('/favorites-detail'),
+              ),
+              const Divider(indent: 24, endIndent: 24),
+              _MenuTile(
+                icon: Icons.settings_outlined,
+                title: t('Configuración'),
+                onTap: () => context.push('/settings'),
               ),
               const SizedBox(height: 32),
               Consumer<AuthProvider>(
@@ -137,17 +147,17 @@ class ProfileScreen extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.all(24),
                             decoration: BoxDecoration(
-                              color: AppColors.primary,
+                              color: context.primary,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Column(
                               children: [
-                                const Text(
-                                  'Accede al panel de administracion',
+                                Text(
+                                  t('Accede al panel de administracion'),
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: 16,
-                                    color: AppColors.background,
+                                    color: Theme.of(context).colorScheme.onPrimary,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -155,11 +165,11 @@ class ProfileScreen extends StatelessWidget {
                                 ElevatedButton(
                                   onPressed: () => context.push('/admin'),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.background,
-                                    foregroundColor: AppColors.primary,
+                                    backgroundColor: context.surface,
+                                    foregroundColor: context.primary,
                                   ),
-                                  child: const Text(
-                                    'Ver panel',
+                                  child: Text(
+                                    t('Ver panel'),
                                     style: TextStyle(fontWeight: FontWeight.w600),
                                   ),
                                 ),
@@ -175,10 +185,10 @@ class ProfileScreen extends StatelessWidget {
                             onPressed: () => auth.signOut(),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.redAccent,
-                              foregroundColor: AppColors.background,
+                              foregroundColor: Colors.white,
                             ),
-                            child: const Text('Cerrar Sesion',
-                                style: TextStyle(fontSize: 16)),
+                            child: Text(t('Cerrar Sesion'),
+                                style: const TextStyle(fontSize: 16)),
                           ),
                         ),
                       ),
@@ -206,10 +216,10 @@ class _MenuTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(icon, color: AppColors.primary),
+      leading: Icon(icon, color: context.primary),
       title:
-          Text(title, style: const TextStyle(fontSize: 16, color: AppColors.primary)),
-      trailing: Icon(Icons.chevron_right, color: AppColors.accent),
+          Text(title, style: TextStyle(fontSize: 16, color: context.primary)),
+      trailing: Icon(Icons.chevron_right, color: AppColors.greenAccent),
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 24),
     );

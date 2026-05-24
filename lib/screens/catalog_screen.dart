@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:lifetours/theme.dart';
 import 'package:lifetours/models/models.dart';
 import 'package:lifetours/providers/providers.dart';
+import 'package:lifetours/i18n/translations.dart';
 import 'package:lifetours/widgets/bottom_nav_bar.dart';
 
 class CatalogScreen extends StatefulWidget {
@@ -39,6 +40,8 @@ class _CatalogScreenState extends State<CatalogScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = context.watch<SettingsProvider>().locale.languageCode;
+    final t = (String key) => AppTranslations.t(key, lang);
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -46,14 +49,14 @@ class _CatalogScreenState extends State<CatalogScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 32),
-              const Padding(
-                padding: EdgeInsets.only(left: 24),
+              Padding(
+                padding: const EdgeInsets.only(left: 24),
                 child: Text(
-                  'Tours',
+                  t('Tours'),
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.primary,
+                    color: context.primary,
                     letterSpacing: -0.5,
                   ),
                 ),
@@ -69,11 +72,11 @@ class _CatalogScreenState extends State<CatalogScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Reserva cosas que hacer\naprobadas por nosotros',
+                    Text(
+                      t('Reserva cosas que hacer\naprobadas por nosotros'),
                       style: TextStyle(
                         fontSize: 18,
-                        color: AppColors.background,
+                        color: Colors.white,
                         fontWeight: FontWeight.w500,
                         height: 1.4,
                       ),
@@ -82,19 +85,19 @@ class _CatalogScreenState extends State<CatalogScreen> {
                     TextField(
                       controller: _searchController,
                       decoration: InputDecoration(
-                        hintText: 'Busca por destino',
+                        hintText: t('Busca por destino'),
                         prefixIcon:
-                            const Icon(Icons.search, color: AppColors.accent),
+                            const Icon(Icons.search, color: AppColors.greenAccent),
                         suffixIcon: _searchQuery.isNotEmpty
                             ? IconButton(
                                 icon: const Icon(Icons.clear,
-                                    color: AppColors.accent),
+                                    color: AppColors.greenAccent),
                                 onPressed: () {
                                   _searchController.clear();
                                 },
                               )
                             : null,
-                        fillColor: AppColors.background,
+                        fillColor: context.surface,
                       ),
                     ),
                   ],
@@ -119,12 +122,12 @@ class _CatalogScreenState extends State<CatalogScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              'Filtrar por precio',
+                            Text(
+                              t('Filtrar por precio'),
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
-                                color: AppColors.primary,
+                                color: context.primary,
                               ),
                             ),
                             Row(
@@ -133,7 +136,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                                   '\$${_priceRange.start.toStringAsFixed(0)} - \$${_priceRange.end.toStringAsFixed(0)}',
                                   style: const TextStyle(
                                     fontSize: 14,
-                                    color: AppColors.accent,
+                                    color: AppColors.greenAccent,
                                   ),
                                 ),
                                 const SizedBox(width: 8),
@@ -141,12 +144,12 @@ class _CatalogScreenState extends State<CatalogScreen> {
                                   icon: Icon(
                                     _isGridMode ? Icons.view_carousel : Icons.grid_view,
                                     size: 20,
-                                    color: AppColors.accent,
+                                    color: AppColors.greenAccent,
                                   ),
                                   onPressed: () {
                                     setState(() => _isGridMode = !_isGridMode);
                                   },
-                                  tooltip: _isGridMode ? 'Vista carrusel' : 'Vista cuadrícula',
+                                  tooltip: _isGridMode ? t('Vista carrusel') : t('Vista cuadrícula'),
                                   visualDensity: VisualDensity.compact,
                                 ),
                               ],
@@ -158,8 +161,8 @@ class _CatalogScreenState extends State<CatalogScreen> {
                           min: minPrice,
                           max: maxPrice > 0 ? maxPrice : 1,
                           divisions: 50,
-                          activeColor: AppColors.accent,
-                          inactiveColor: AppColors.accent.withAlpha(60),
+                          activeColor: AppColors.greenAccent,
+                          inactiveColor: AppColors.greenAccent.withAlpha(60),
                           labels: RangeLabels(
                             '\$${_priceRange.start.toStringAsFixed(0)}',
                             '\$${_priceRange.end.toStringAsFixed(0)}',
@@ -174,14 +177,14 @@ class _CatalogScreenState extends State<CatalogScreen> {
                 },
               ),
               const SizedBox(height: 24),
-              const Padding(
-                padding: EdgeInsets.only(left: 24),
+              Padding(
+                padding: const EdgeInsets.only(left: 24),
                 child: Text(
-                  'Podria interesarte',
+                  t('Podria interesarte'),
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.primary,
+                    color: context.primary,
                   ),
                 ),
               ),
@@ -206,11 +209,11 @@ class _CatalogScreenState extends State<CatalogScreen> {
                       t.price >= _priceRange.start &&
                       t.price <= _priceRange.end).toList();
                   if (filteredTours.isEmpty) {
-                    return const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 24),
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Text(
-                        'No hay tours disponibles',
-                        style: TextStyle(color: AppColors.accent),
+                        t('No hay tours disponibles'),
+                        style: TextStyle(color: context.accent),
                       ),
                     );
                   }
@@ -268,14 +271,14 @@ class _CatalogScreenState extends State<CatalogScreen> {
                 },
               ),
               const SizedBox(height: 32),
-              const Padding(
-                padding: EdgeInsets.only(left: 24),
+              Padding(
+                padding: const EdgeInsets.only(left: 24),
                 child: Text(
-                  'Destinos',
+                  t('Destinos'),
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.primary,
+                    color: context.primary,
                   ),
                 ),
               ),
@@ -299,11 +302,11 @@ class _CatalogScreenState extends State<CatalogScreen> {
                       _matchesSearch(d.city) ||
                       _matchesSearch(d.country)).toList();
                   if (filteredDests.isEmpty) {
-                    return const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 24),
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Text(
-                        'No hay destinos disponibles',
-                        style: TextStyle(color: AppColors.accent),
+                        t('No hay destinos disponibles'),
+                        style: TextStyle(color: context.accent),
                       ),
                     );
                   }
@@ -364,34 +367,34 @@ class _DestinationCard extends StatelessWidget {
         width: 220,
         child: Container(
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.primary),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(11),
-                  topRight: Radius.circular(11),
-                ),
-                child: CachedNetworkImage(
-                  imageUrl: destination.imageUrl,
-                  height: 130,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
+          border: Border.all(color: context.primary),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(11),
+                topRight: Radius.circular(11),
+              ),
+              child: CachedNetworkImage(
+                imageUrl: destination.imageUrl,
+                height: 130,
+                width: double.infinity,
+                fit: BoxFit.cover,
                   placeholder: (_, __) => Container(
                     height: 130,
-                    color: AppColors.accent.withAlpha(60),
+                    color: AppColors.greenAccent.withAlpha(60),
                     child: Center(
-                      child: Icon(Icons.image_outlined, size: 48, color: AppColors.accent),
+                      child: Icon(Icons.image_outlined, size: 48, color: AppColors.greenAccent),
                     ),
                   ),
                   errorWidget: (_, __, ___) => Container(
                     height: 130,
-                    color: AppColors.accent.withAlpha(60),
+                    color: AppColors.greenAccent.withAlpha(60),
                     child: Center(
-                      child: Icon(Icons.image_outlined, size: 48, color: AppColors.accent),
+                      child: Icon(Icons.image_outlined, size: 48, color: AppColors.greenAccent),
                     ),
                   ),
                 ),
@@ -403,16 +406,16 @@ class _DestinationCard extends StatelessWidget {
                   children: [
                     Text(
                       destination.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.primary,
+                        color: context.primary,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       '${destination.city}, ${destination.country}',
-                      style: const TextStyle(fontSize: 13, color: AppColors.accent),
+                      style: TextStyle(fontSize: 13, color: context.accent),
                     ),
                   ],
                 ),
@@ -436,16 +439,16 @@ class _TourCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: grid ? _buildGrid() : _buildCarousel(),
+      child: grid ? _buildGrid(context) : _buildCarousel(context),
     );
   }
 
-  Widget _buildCarousel() {
+  Widget _buildCarousel(BuildContext context) {
     return SizedBox(
       width: 220,
       child: Container(
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.primary),
+          border: Border.all(color: context.primary),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Padding(
@@ -455,9 +458,9 @@ class _TourCard extends StatelessWidget {
             children: [
               _buildImage(100),
               const SizedBox(height: 12),
-              _buildTitle(),
+              _buildTitle(context),
               const SizedBox(height: 4),
-              _buildDestination(),
+              _buildDestination(context),
               const SizedBox(height: 4),
               _buildPrice(),
               const SizedBox(height: 8),
@@ -469,11 +472,11 @@ class _TourCard extends StatelessWidget {
     );
   }
 
-  Widget _buildGrid() {
+  Widget _buildGrid(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: AppColors.background,
+        color: context.surface,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -485,9 +488,9 @@ class _TourCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildTitle(),
+                _buildTitle(context),
                 const SizedBox(height: 2),
-                _buildDestination(),
+                _buildDestination(context),
                 const SizedBox(height: 2),
                 _buildPrice(),
               ],
@@ -508,41 +511,41 @@ class _TourCard extends StatelessWidget {
         fit: BoxFit.cover,
         placeholder: (_, __) => Container(
           height: height,
-          color: AppColors.accent.withAlpha(60),
+          color: AppColors.greenAccent.withAlpha(60),
           child: Center(
-            child: Icon(Icons.image_outlined, size: 48, color: AppColors.accent),
+            child: Icon(Icons.image_outlined, size: 48, color: AppColors.greenAccent),
           ),
         ),
         errorWidget: (_, __, ___) => Container(
           height: height,
-          color: AppColors.accent.withAlpha(60),
+          color: AppColors.greenAccent.withAlpha(60),
           child: Center(
-            child: Icon(Icons.image_outlined, size: 48, color: AppColors.accent),
+            child: Icon(Icons.image_outlined, size: 48, color: AppColors.greenAccent),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildTitle() {
+  Widget _buildTitle(BuildContext context) {
     return Text(
       tour.title,
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.w600,
-        color: AppColors.primary,
+        color: context.primary,
       ),
     );
   }
 
-  Widget _buildDestination() {
+  Widget _buildDestination(BuildContext context) {
     return Text(
       tour.destinationName,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: const TextStyle(fontSize: 12, color: AppColors.accent),
+      style: TextStyle(fontSize: 12, color: context.accent),
     );
   }
 
@@ -552,7 +555,7 @@ class _TourCard extends StatelessWidget {
       style: const TextStyle(
         fontSize: 15,
         fontWeight: FontWeight.w600,
-        color: AppColors.accent,
+        color: AppColors.greenAccent,
       ),
     );
   }
@@ -565,13 +568,13 @@ class _TourCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(
                     horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.accent),
+                  border: Border.all(color: AppColors.greenAccent),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   c.label,
                   style: const TextStyle(
-                      fontSize: 11, color: AppColors.accent),
+                      fontSize: 11, color: AppColors.greenAccent),
                 ),
               ))
           .toList(),

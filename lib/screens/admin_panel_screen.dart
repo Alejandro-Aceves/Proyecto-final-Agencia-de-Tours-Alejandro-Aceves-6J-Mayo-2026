@@ -4,12 +4,14 @@ import 'package:provider/provider.dart';
 import 'package:lifetours/theme.dart';
 import 'package:lifetours/providers/providers.dart';
 import 'package:lifetours/widgets/bottom_nav_bar.dart';
+import 'package:lifetours/i18n/translations.dart';
 
 class AdminPanelScreen extends StatelessWidget {
   const AdminPanelScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final lang = context.watch<SettingsProvider>().locale.languageCode;
     return Consumer<AuthProvider>(
       builder: (context, auth, _) {
         if (!auth.isAdmin) {
@@ -18,18 +20,18 @@ class AdminPanelScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    'Acceso restringido',
+                  Text(
+                    AppTranslations.t('Acceso restringido', lang),
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
+                      color: context.primary,
                     ),
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () => context.pop(),
-                    child: const Text('Volver'),
+                    child: Text(AppTranslations.t('Volver', lang)),
                   ),
                 ],
               ),
@@ -52,47 +54,52 @@ class AdminPanelScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 16),
-                    const Text(
-                      'Bienvenido administrador',
+                    Text(
+                      AppTranslations.t('Bienvenido administrador', lang),
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.primary,
+                        color: context.primary,
                         letterSpacing: -0.5,
                       ),
                     ),
                     const SizedBox(height: 32),
-                    const Text(
-                      'Tablas',
+                    Text(
+                      AppTranslations.t('Tablas', lang),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.primary,
+                        color: context.primary,
                       ),
                     ),
                     const SizedBox(height: 16),
                     _TableRow(
                       label: 'Usuarios',
+                      lang: lang,
                       onTap: () => context.push('/admin/users', extra: 'users'),
                     ),
                     const Divider(),
                     _TableRow(
                       label: 'Destinos',
+                      lang: lang,
                       onTap: () => context.push('/admin/users', extra: 'destinations'),
                     ),
                     const Divider(),
                     _TableRow(
                       label: 'Tours',
+                      lang: lang,
                       onTap: () => context.push('/admin/users', extra: 'tours'),
                     ),
                     const Divider(),
                     _TableRow(
                       label: 'Reservas',
+                      lang: lang,
                       onTap: () => context.push('/admin/users', extra: 'reservations'),
                     ),
                     const Divider(),
                     _TableRow(
                       label: 'Resenas',
+                      lang: lang,
                       onTap: () => context.push('/admin/users', extra: 'reviews'),
                     ),
                   ],
@@ -109,9 +116,10 @@ class AdminPanelScreen extends StatelessWidget {
 
 class _TableRow extends StatelessWidget {
   final String label;
+  final String lang;
   final VoidCallback? onTap;
 
-  const _TableRow({required this.label, this.onTap});
+  const _TableRow({required this.label, required this.lang, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -121,15 +129,15 @@ class _TableRow extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            label,
-            style: const TextStyle(fontSize: 16, color: AppColors.primary),
+            AppTranslations.t(label, lang),
+            style: TextStyle(fontSize: 16, color: context.primary),
           ),
           ElevatedButton(
             onPressed: onTap,
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
             ),
-            child: const Text('Ver'),
+            child: Text(AppTranslations.t('Ver', lang)),
           ),
         ],
       ),

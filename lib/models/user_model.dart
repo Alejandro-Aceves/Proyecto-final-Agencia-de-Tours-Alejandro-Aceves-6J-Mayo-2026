@@ -14,6 +14,8 @@ enum UserRole { user, admin }
 ///   ├── role:        "user" | "admin"
 ///   ├── photoUrl:    String?
 ///   ├── phone:       String?
+///   ├── darkMode:    bool
+///   ├── language:    String
 ///   └── createdAt:   Timestamp
 /// ```
 class UserModel extends Equatable {
@@ -23,6 +25,8 @@ class UserModel extends Equatable {
   final UserRole role;
   final String? photoUrl;
   final String? phone;
+  final bool darkMode;
+  final String language;
   final DateTime createdAt;
 
   const UserModel({
@@ -32,6 +36,8 @@ class UserModel extends Equatable {
     this.role = UserRole.user,
     this.photoUrl,
     this.phone,
+    this.darkMode = false,
+    this.language = 'es',
     required this.createdAt,
   });
 
@@ -47,6 +53,8 @@ class UserModel extends Equatable {
       role: (map['role'] as String?) == 'admin' ? UserRole.admin : UserRole.user,
       photoUrl: map['photoUrl'] as String?,
       phone: map['phone'] as String?,
+      darkMode: map['darkMode'] as bool? ?? false,
+      language: map['language'] as String? ?? 'es',
       createdAt: (map['createdAt'] as Timestamp).toDate(),
     );
   }
@@ -61,6 +69,8 @@ class UserModel extends Equatable {
         'role': role.name,
         'photoUrl': photoUrl,
         'phone': phone,
+        'darkMode': darkMode,
+        'language': language,
         'createdAt': Timestamp.fromDate(createdAt),
       };
 
@@ -72,6 +82,8 @@ class UserModel extends Equatable {
     UserRole? role,
     String? photoUrl,
     String? phone,
+    bool? darkMode,
+    String? language,
   }) {
     return UserModel(
       uid: uid,
@@ -80,12 +92,15 @@ class UserModel extends Equatable {
       role: role ?? this.role,
       photoUrl: photoUrl ?? this.photoUrl,
       phone: phone ?? this.phone,
+      darkMode: darkMode ?? this.darkMode,
+      language: language ?? this.language,
       createdAt: createdAt,
     );
   }
 
   @override
-  List<Object?> get props => [uid, name, email, role, photoUrl, phone, createdAt];
+  List<Object?> get props =>
+      [uid, name, email, role, photoUrl, phone, darkMode, language, createdAt];
 
   @override
   String toString() => 'UserModel(uid: $uid, name: $name, role: ${role.name})';

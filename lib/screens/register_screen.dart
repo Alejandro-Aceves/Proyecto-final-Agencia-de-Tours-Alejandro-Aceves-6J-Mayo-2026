@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:lifetours/theme.dart';
 import 'package:lifetours/providers/providers.dart';
+import 'package:lifetours/i18n/translations.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -25,20 +26,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  void _signUp() {
+  void _signUp(String lang) {
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
     if (name.isEmpty || email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Completa todos los campos')),
+        SnackBar(content: Text(AppTranslations.t('Completa todos los campos', lang))),
       );
       return;
     }
     if (password.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('La contraseña debe tener al menos 6 caracteres')),
+        SnackBar(
+            content: Text(AppTranslations.t('La contraseña debe tener al menos 6 caracteres', lang))),
       );
       return;
     }
@@ -47,6 +48,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = context.watch<SettingsProvider>().locale.languageCode;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -63,19 +65,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
               const SizedBox(height: 24),
-              const Text(
-                'Bienvenido',
+              Text(
+                AppTranslations.t('Bienvenido', lang),
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
+                  color: context.primary,
                   letterSpacing: -0.5,
                 ),
               ),
               const SizedBox(height: 4),
-              const Text(
-                'Listo para crear tu cuenta',
-                style: TextStyle(fontSize: 16, color: AppColors.accent),
+              Text(
+                AppTranslations.t('Listo para crear tu cuenta', lang),
+                style: TextStyle(fontSize: 16, color: context.accent),
               ),
               const SizedBox(height: 40),
               Consumer<AuthProvider>(
@@ -105,18 +107,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
               TextField(
                 controller: _nameController,
                 textCapitalization: TextCapitalization.words,
-                decoration: const InputDecoration(
-                  labelText: 'Nombre',
-                  hintText: 'Nombre',
+                decoration: InputDecoration(
+                  labelText: AppTranslations.t('Nombre', lang),
+                  hintText: AppTranslations.t('Nombre', lang),
                 ),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  labelText: 'Correo Electronico',
-                  hintText: 'Correo Electronico',
+                decoration: InputDecoration(
+                  labelText: AppTranslations.t('Correo Electronico', lang),
+                  hintText: AppTranslations.t('Correo Electronico', lang),
                 ),
               ),
               const SizedBox(height: 16),
@@ -124,12 +126,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 controller: _passwordController,
                 obscureText: _obscurePassword,
                 decoration: InputDecoration(
-                  labelText: 'Contrasena',
-                  hintText: 'Contrasena',
+                  labelText: AppTranslations.t('Contrasena', lang),
+                  hintText: AppTranslations.t('Contrasena', lang),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                      color: AppColors.accent,
+                      color: AppColors.greenAccent,
                     ),
                     onPressed: () =>
                         setState(() => _obscurePassword = !_obscurePassword),
@@ -143,18 +145,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed:
-                          auth.status == AuthStatus.loading ? null : _signUp,
+                          auth.status == AuthStatus.loading ? null : () => _signUp(lang),
                       child: auth.status == AuthStatus.loading
-                          ? const SizedBox(
+                          ? SizedBox(
                               width: 20,
                               height: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: AppColors.background,
+                                color: Theme.of(context).colorScheme.onPrimary,
                               ),
                             )
-                          : const Text('Crear Cuenta',
-                              style: TextStyle(fontSize: 16)),
+                          : Text(AppTranslations.t('Crear Cuenta', lang),
+                              style: const TextStyle(fontSize: 16)),
                     ),
                   );
                 },

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:lifetours/theme.dart';
 import 'package:lifetours/providers/providers.dart';
 import 'package:lifetours/widgets/bottom_nav_bar.dart';
+import 'package:lifetours/i18n/translations.dart';
 
 class ReviewScreen extends StatefulWidget {
   final String? tourId;
@@ -24,17 +25,18 @@ class _ReviewScreenState extends State<ReviewScreen> {
   }
 
   void _submitReview() {
+    final lang = context.read<SettingsProvider>().locale.languageCode;
     final auth = context.read<AuthProvider>();
     final comment = _commentController.text.trim();
     if (comment.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Escribe un comentario')),
+        SnackBar(content: Text(AppTranslations.t('Escribe un comentario', lang))),
       );
       return;
     }
     if (auth.userModel == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Debes iniciar sesión')),
+        SnackBar(content: Text(AppTranslations.t('Debes iniciar sesión', lang))),
       );
       return;
     }
@@ -49,29 +51,30 @@ class _ReviewScreenState extends State<ReviewScreen> {
         );
     _commentController.clear();
     setState(() => _showForm = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Opinión publicada')),
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppTranslations.t('Opinión publicada', lang))),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final lang = context.watch<SettingsProvider>().locale.languageCode;
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
               const SizedBox(height: 40),
-              const Padding(
-                padding: EdgeInsets.only(left: 24),
+              Padding(
+                padding: const EdgeInsets.only(left: 24),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Escribir opinion',
+                    AppTranslations.t('Escribir opinion', lang),
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
+                      color: context.primary,
                       letterSpacing: -0.5,
                     ),
                   ),
@@ -84,9 +87,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Calificación',
-                        style: TextStyle(fontSize: 16, color: AppColors.primary),
+                      Text(
+                        AppTranslations.t('Calificación', lang),
+                        style: TextStyle(fontSize: 16, color: context.primary),
                       ),
                       const SizedBox(height: 8),
                       Row(
@@ -95,7 +98,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                           return IconButton(
                             icon: Icon(
                               star <= _rating ? Icons.star : Icons.star_border,
-                              color: AppColors.accent,
+                              color: AppColors.greenAccent,
                               size: 32,
                             ),
                             onPressed: () => setState(() => _rating = star),
@@ -106,9 +109,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       TextField(
                         controller: _commentController,
                         maxLines: 4,
-                        decoration: const InputDecoration(
-                          labelText: 'Tu opinión',
-                          hintText: 'Comparte tu experiencia...',
+                        decoration: InputDecoration(
+                          labelText: AppTranslations.t('Tu opinión', lang),
+                          hintText: AppTranslations.t('Comparte tu experiencia...', lang),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -116,7 +119,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: _submitReview,
-                          child: const Text('Publicar', style: TextStyle(fontSize: 16)),
+                          child: Text(AppTranslations.t('Publicar', lang), style: const TextStyle(fontSize: 16)),
                         ),
                       ),
                     ],
@@ -130,7 +133,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     child: ElevatedButton.icon(
                       onPressed: () => setState(() => _showForm = true),
                       icon: const Icon(Icons.add, size: 18),
-                      label: const Text('Escribir una opinion'),
+                      label: Text(AppTranslations.t('Escribir una opinion', lang)),
                     ),
                   ),
                 ),
@@ -141,25 +144,25 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     return const CircularProgressIndicator();
                   }
                   if (provider.reviews.isEmpty) {
-                    return const Column(
+                    return Column(
                       children: [
-                        Icon(Icons.chat_bubble_outline, size: 80, color: AppColors.accent),
-                        SizedBox(height: 24),
+                        const Icon(Icons.chat_bubble_outline, size: 80, color: AppColors.greenAccent),
+                        const SizedBox(height: 24),
                         Text(
-                          'Comentanos',
+                          AppTranslations.t('Comentanos', lang),
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.primary,
+                            color: context.primary,
                           ),
                         ),
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 40),
+                          padding: const EdgeInsets.symmetric(horizontal: 40),
                           child: Text(
-                            'Queremos que escribas una opinion sobre nosotros',
+                            AppTranslations.t('Queremos que escribas una opinion sobre nosotros', lang),
                             textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 15, color: AppColors.accent, height: 1.5),
+                            style: TextStyle(fontSize: 15, color: context.accent, height: 1.5),
                           ),
                         ),
                       ],
@@ -177,7 +180,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                         margin: const EdgeInsets.only(bottom: 16),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.primary),
+                          border: Border.all(color: context.primary),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Column(
@@ -188,9 +191,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
                                 Expanded(
                                   child: Text(
                                     review.userName,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.w600,
-                                      color: AppColors.primary,
+                                      color: context.primary,
                                     ),
                                   ),
                                 ),
@@ -199,7 +202,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                                     return Icon(
                                       i < review.rating ? Icons.star : Icons.star_border,
                                       size: 16,
-                                      color: AppColors.accent,
+                                      color: AppColors.greenAccent,
                                     );
                                   }),
                                 ),
@@ -208,12 +211,12 @@ class _ReviewScreenState extends State<ReviewScreen> {
                             const SizedBox(height: 8),
                             Text(
                               review.comment,
-                              style: const TextStyle(fontSize: 14, color: AppColors.accent),
+                              style: TextStyle(fontSize: 14, color: context.accent),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               review.tourTitle,
-                              style: const TextStyle(fontSize: 12, color: AppColors.accent),
+                              style: TextStyle(fontSize: 12, color: context.accent),
                             ),
                           ],
                         ),

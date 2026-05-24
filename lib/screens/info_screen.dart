@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:lifetours/theme.dart';
+import 'package:lifetours/i18n/translations.dart';
+import 'package:lifetours/providers/providers.dart';
 
 class InfoScreen extends StatelessWidget {
   const InfoScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final lang = context.watch<SettingsProvider>().locale.languageCode;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
-        title: const Text('Informacion'),
+        title: Text(AppTranslations.t('Informacion', lang)),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -22,12 +26,12 @@ class InfoScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 16),
-              const Text(
-                'Informacion',
+              Text(
+                AppTranslations.t('Informacion', lang),
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
+                  color: context.primary,
                   letterSpacing: -0.5,
                 ),
               ),
@@ -36,31 +40,29 @@ class InfoScreen extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.primary),
+                  border: Border.all(color: context.primary),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Column(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Sobre Life Tours',
+                      AppTranslations.t('Sobre Life Tours', lang),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.primary,
+                        color: context.primary,
                       ),
                     ),
                     SizedBox(height: 12),
                     Text(
-                      'Life Tours es una plataforma de reserva de viajes y experiencias '
-                      'diseñada para ayudarte a descubrir los mejores destinos alrededor '
-                      'del mundo.',
-                      style: TextStyle(fontSize: 14, color: AppColors.accent, height: 1.6),
+                      AppTranslations.t('Life Tours es una plataforma de reserva de viajes y experiencias diseñada para ayudarte a descubrir los mejores destinos alrededor del mundo.', lang),
+                      style: TextStyle(fontSize: 14, color: context.accent, height: 1.6),
                     ),
                     SizedBox(height: 16),
                     Text(
-                      'Version 1.0.0',
-                      style: TextStyle(fontSize: 13, color: AppColors.accent),
+                      AppTranslations.t('Version 1.0.0', lang),
+                      style: TextStyle(fontSize: 13, color: context.accent),
                     ),
                   ],
                 ),
@@ -70,28 +72,28 @@ class InfoScreen extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.primary),
+                  border: Border.all(color: context.primary),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Column(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Contacto',
+                      AppTranslations.t('Contacto', lang),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.primary,
+                        color: context.primary,
                       ),
                     ),
                     SizedBox(height: 12),
                     Text(
-                      'Correo: soporte@lifetours.com',
-                      style: TextStyle(fontSize: 14, color: AppColors.accent, height: 1.6),
+                      AppTranslations.t('Correo: soporte@lifetours.com', lang),
+                      style: TextStyle(fontSize: 14, color: context.accent, height: 1.6),
                     ),
                     Text(
-                      'Telefono: +52 55 9876 5432',
-                      style: TextStyle(fontSize: 14, color: AppColors.accent, height: 1.6),
+                      AppTranslations.t('Telefono: +52 55 9876 5432', lang),
+                      style: TextStyle(fontSize: 14, color: context.accent, height: 1.6),
                     ),
                   ],
                 ),

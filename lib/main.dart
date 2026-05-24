@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -33,18 +34,21 @@ class LifeToursApp extends StatefulWidget {
 
 class _LifeToursAppState extends State<LifeToursApp> {
   late final AuthProvider _authProvider;
+  late final SettingsProvider _settingsProvider;
   late final GoRouter _router;
 
   @override
   void initState() {
     super.initState();
     _authProvider = AuthProvider();
+    _settingsProvider = SettingsProvider(_authProvider);
     _router = _createRouter(_authProvider);
   }
 
   @override
   void dispose() {
     _authProvider.dispose();
+    _settingsProvider.dispose();
     super.dispose();
   }
 
@@ -121,6 +125,7 @@ class _LifeToursAppState extends State<LifeToursApp> {
           builder: (_, __) => const ProfileDetailScreen(),
         ),
         GoRoute(path: '/info', builder: (_, __) => const InfoScreen()),
+        GoRoute(path: '/settings', builder: (_, __) => const SettingsScreen()),
       ],
     );
   }
@@ -130,6 +135,7 @@ class _LifeToursAppState extends State<LifeToursApp> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: _authProvider),
+        ChangeNotifierProvider.value(value: _settingsProvider),
         ChangeNotifierProvider(create: (_) => DestinationProvider()),
         ChangeNotifierProvider(create: (_) => TourProvider()),
         ChangeNotifierProvider(create: (_) => ReviewProvider()),
@@ -137,111 +143,24 @@ class _LifeToursAppState extends State<LifeToursApp> {
         ChangeNotifierProvider(create: (_) => FavoriteProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
       ],
-      child: MaterialApp.router(
-        title: 'Life Tours',
-        theme: ThemeData(
-          colorScheme: ColorScheme(
-            brightness: Brightness.light,
-            primary: AppColors.primary,
-            onPrimary: AppColors.background,
-            secondary: AppColors.accent,
-            onSecondary: AppColors.background,
-            surface: AppColors.background,
-            onSurface: AppColors.primary,
-            error: AppColors.primary,
-            onError: AppColors.background,
-          ),
-          scaffoldBackgroundColor: AppColors.background,
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            centerTitle: true,
-            iconTheme: IconThemeData(color: AppColors.primary),
-            titleTextStyle: TextStyle(
-              color: AppColors.primary,
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          elevatedButtonTheme: ElevatedButtonThemeData(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.background,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding:
-                  const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
-              elevation: 0,
-            ),
-          ),
-          outlinedButtonTheme: OutlinedButtonThemeData(
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.primary,
-              side: const BorderSide(color: AppColors.primary),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding:
-                  const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
-            ),
-          ),
-          inputDecorationTheme: InputDecorationTheme(
-            filled: true,
-            fillColor: AppColors.background,
-            labelStyle: const TextStyle(color: AppColors.accent),
-            hintStyle: const TextStyle(color: AppColors.accent),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppColors.primary),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppColors.primary),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide:
-                  const BorderSide(color: AppColors.primary, width: 2),
-            ),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          ),
-          dividerTheme: const DividerThemeData(
-            color: AppColors.primary,
-            thickness: 1,
-          ),
-          textTheme: const TextTheme(
-            headlineLarge: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w600,
-              color: AppColors.primary,
-              letterSpacing: -0.5,
-            ),
-            headlineMedium: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w600,
-              color: AppColors.primary,
-            ),
-            titleLarge: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: AppColors.primary,
-            ),
-            bodyLarge: TextStyle(
-              fontSize: 16,
-              color: AppColors.primary,
-            ),
-            bodyMedium: TextStyle(
-              fontSize: 14,
-              color: AppColors.accent,
-              height: 1.5,
-            ),
-          ),
-          useMaterial3: true,
-        ),
-        routerConfig: _router,
-        debugShowCheckedModeBanner: false,
+      child: Consumer<SettingsProvider>(
+        builder: (context, settings, _) {
+          return MaterialApp.router(
+            title: 'Life Tours',
+            theme: buildLightTheme(),
+            darkTheme: buildDarkTheme(),
+            themeMode: settings.themeMode,
+            locale: settings.locale,
+            supportedLocales: const [Locale('es'), Locale('en')],
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            routerConfig: _router,
+            debugShowCheckedModeBanner: false,
+          );
+        },
       ),
     );
   }

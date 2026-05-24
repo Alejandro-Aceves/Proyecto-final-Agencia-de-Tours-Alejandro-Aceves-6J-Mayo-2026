@@ -36,6 +36,8 @@ class UserFields {
   static const String photoUrl  = 'photoUrl';
   static const String phone     = 'phone';
   static const String createdAt = 'createdAt';
+  static const String darkMode  = 'darkMode';
+  static const String language  = 'language';
 }
 
 class DestinationFields {

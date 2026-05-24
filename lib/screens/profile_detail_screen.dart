@@ -4,26 +4,28 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:lifetours/theme.dart';
 import 'package:lifetours/providers/providers.dart';
+import 'package:lifetours/i18n/translations.dart';
 
 class ProfileDetailScreen extends StatelessWidget {
   const ProfileDetailScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final lang = context.watch<SettingsProvider>().locale.languageCode;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
-        title: const Text('Perfil'),
+        title: Text(AppTranslations.t('Perfil', lang)),
       ),
       body: SafeArea(
         child: Consumer<AuthProvider>(
           builder: (context, auth, _) {
             final user = auth.userModel;
             if (user == null) {
-              return const Center(child: Text('Inicia sesión para ver tu perfil'));
+              return Center(child: Text(AppTranslations.t('Inicia sesión para ver tu perfil', lang)));
             }
             String memberSince;
             try {
@@ -37,12 +39,12 @@ class ProfileDetailScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 16),
-                  const Text(
-                    'Mi Perfil',
+                  Text(
+                    AppTranslations.t('Mi Perfil', lang),
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
+                      color: context.primary,
                       letterSpacing: -0.5,
                     ),
                   ),
@@ -50,11 +52,11 @@ class ProfileDetailScreen extends StatelessWidget {
                   Center(
                     child: CircleAvatar(
                       radius: 48,
-                      backgroundColor: AppColors.primary,
+                      backgroundColor: context.primary,
                       child: Text(
                         user.name.isNotEmpty ? user.name[0].toUpperCase() : '?',
-                        style: const TextStyle(
-                          color: AppColors.background,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimary,
                           fontSize: 40,
                           fontWeight: FontWeight.w600,
                         ),
@@ -62,13 +64,13 @@ class ProfileDetailScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  _InfoRow(label: 'Nombre', value: user.name),
+                  _InfoRow(label: AppTranslations.t('Nombre', lang), value: user.name),
                   const Divider(),
-                  _InfoRow(label: 'Correo', value: user.email),
+                  _InfoRow(label: AppTranslations.t('Correo', lang), value: user.email),
                   const Divider(),
-                  _InfoRow(label: 'Telefono', value: user.phone ?? 'No registrado'),
+                  _InfoRow(label: AppTranslations.t('Telefono', lang), value: user.phone ?? AppTranslations.t('No registrado', lang)),
                   const Divider(),
-                  _InfoRow(label: 'Miembro desde', value: memberSince),
+                  _InfoRow(label: AppTranslations.t('Miembro desde', lang), value: memberSince),
                 ],
               ),
             );
@@ -94,14 +96,14 @@ class _InfoRow extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(fontSize: 15, color: AppColors.accent),
+            style: TextStyle(fontSize: 15, color: context.accent),
           ),
           Text(
             value,
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-              color: AppColors.primary,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+                color: context.primary,
             ),
           ),
         ],

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:lifetours/theme.dart';
 import 'package:lifetours/providers/providers.dart';
+import 'package:lifetours/i18n/translations.dart';
 import 'package:lifetours/widgets/bottom_nav_bar.dart';
 
 class DiscoverScreen extends StatelessWidget {
@@ -10,6 +11,8 @@ class DiscoverScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final lang = context.watch<SettingsProvider>().locale.languageCode;
+    final t = (String key) => AppTranslations.t(key, lang);
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -17,19 +20,19 @@ class DiscoverScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 40),
-              const Text(
-                '¿Estas Aburrido?',
+              Text(
+                t('¿Estas Aburrido?'),
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
+                  color: context.primary,
                   letterSpacing: -0.5,
                 ),
               ),
               const SizedBox(height: 4),
-              const Text(
-                'Encuentra esto y mas',
-                style: TextStyle(fontSize: 16, color: AppColors.accent),
+              Text(
+                t('Encuentra esto y mas'),
+                style: TextStyle(fontSize: 16, color: context.accent),
               ),
               const SizedBox(height: 32),
               Padding(
@@ -42,17 +45,17 @@ class DiscoverScreen extends StatelessWidget {
                   mainAxisSpacing: 12,
                   childAspectRatio: 1.4,
                   children: [
-                    _CategoryCard(label: 'Cultura', imageUrl: 'https://picsum.photos/seed/cultura/400/300'),
-                    _CategoryCard(label: 'Agua', imageUrl: 'https://picsum.photos/seed/agua/400/300'),
-                    _CategoryCard(label: 'Al aire libre', imageUrl: 'https://picsum.photos/seed/airelibre/400/300'),
-                    _CategoryCard(label: 'Comida', imageUrl: 'https://picsum.photos/seed/comida/400/300'),
+                    _CategoryCard(label: t('Cultura'), imageUrl: 'https://picsum.photos/seed/cultura/400/300'),
+                    _CategoryCard(label: t('Agua'), imageUrl: 'https://picsum.photos/seed/agua/400/300'),
+                    _CategoryCard(label: t('Al aire libre'), imageUrl: 'https://picsum.photos/seed/airelibre/400/300'),
+                    _CategoryCard(label: t('Comida'), imageUrl: 'https://picsum.photos/seed/comida/400/300'),
                   ],
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Comprueba nuestra variedad de actividades',
-                style: TextStyle(fontSize: 14, color: AppColors.accent),
+              Text(
+                t('Comprueba nuestra variedad de actividades'),
+                style: TextStyle(fontSize: 14, color: context.accent),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
@@ -60,20 +63,20 @@ class DiscoverScreen extends StatelessWidget {
                 width: 200,
                 child: ElevatedButton(
                   onPressed: () => context.go('/catalog'),
-                  child: const Text('Ver mas', style: TextStyle(fontSize: 16)),
+                  child: Text(t('Ver mas'), style: TextStyle(fontSize: 16)),
                 ),
               ),
               const SizedBox(height: 40),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Destinos',
+                    t('Destinos'),
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
+                      color: context.primary,
                     ),
                   ),
                 ),
@@ -94,11 +97,11 @@ class DiscoverScreen extends StatelessWidget {
                     );
                   }
                   if (provider.destinations.isEmpty) {
-                    return const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 24),
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Text(
-                        'No hay destinos disponibles',
-                        style: TextStyle(color: AppColors.accent),
+                        t('No hay destinos disponibles'),
+                        style: TextStyle(color: context.accent),
                       ),
                     );
                   }
@@ -126,7 +129,7 @@ class DiscoverScreen extends StatelessWidget {
                               child: Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primary.withAlpha(180),
+                                  color: context.primary.withAlpha(180),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Column(
@@ -135,17 +138,17 @@ class DiscoverScreen extends StatelessWidget {
                                   children: [
                                     Text(
                                       dest.name,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 24,
                                         fontWeight: FontWeight.w600,
-                                        color: AppColors.background,
+                                        color: Theme.of(context).colorScheme.onPrimary,
                                       ),
                                     ),
                                     Text(
                                       '${dest.city}, ${dest.country}',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 14,
-                                        color: AppColors.background,
+                                        color: Theme.of(context).colorScheme.onPrimary,
                                       ),
                                     ),
                                   ],
@@ -162,16 +165,16 @@ class DiscoverScreen extends StatelessWidget {
               const SizedBox(height: 32),
 
               // ── Por qué elegirnos ──
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Por que elegirnos',
+                    t('Por que elegirnos'),
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
+                      color: context.primary,
                     ),
                   ),
                 ),
@@ -183,23 +186,20 @@ class DiscoverScreen extends StatelessWidget {
                   children: [
                     _BenefitCard(
                       icon: Icons.verified,
-                      title: 'Viajes verificados',
-                      description:
-                          'Todos nuestros tours son revisados y aprobados por nuestro equipo de expertos locales.',
+                      title: t('Viajes verificados'),
+                      description: t('Todos nuestros tours son revisados y aprobados por nuestro equipo de expertos locales.'),
                     ),
                     const SizedBox(height: 12),
                     _BenefitCard(
                       icon: Icons.support_agent,
-                      title: 'Soporte 24/7',
-                      description:
-                          'Estamos disponibles en todo momento para ayudarte durante tu viaje.',
+                      title: t('Soporte 24/7'),
+                      description: t('Estamos disponibles en todo momento para ayudarte durante tu viaje.'),
                     ),
                     const SizedBox(height: 12),
                     _BenefitCard(
                       icon: Icons.monetization_on,
-                      title: 'Mejor precio garantizado',
-                      description:
-                          'Te ofrecemos los mejores precios del mercado con cancelacion flexible.',
+                      title: t('Mejor precio garantizado'),
+                      description: t('Te ofrecemos los mejores precios del mercado con cancelacion flexible.'),
                     ),
                   ],
                 ),
@@ -211,37 +211,34 @@ class DiscoverScreen extends StatelessWidget {
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
-                color: AppColors.primary.withAlpha(20),
+                color: context.primary.withAlpha(20),
                 child: Column(
                   children: [
-                    const Text(
-                      'Testimonios',
+                    Text(
+                      t('Testimonios'),
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.primary,
+                        color: context.primary,
                       ),
                     ),
                     const SizedBox(height: 20),
                     _TestimonialCard(
-                      name: 'Maria G.',
-                      location: 'España',
-                      text:
-                          'Una experiencia inolvidable. El tour por Barcelona supero todas mis expectativas. Guias muy capacitados y atentos.',
+                      name: t('Maria G.'),
+                      location: t('España'),
+                      text: t('Una experiencia inolvidable. El tour por Barcelona supero todas mis expectativas. Guias muy capacitados y atentos.'),
                     ),
                     const SizedBox(height: 16),
                     _TestimonialCard(
-                      name: 'Carlos R.',
-                      location: 'Mexico',
-                      text:
-                          'Viaje a Paris con mi familia y todo estuvo perfectamente organizado. Sin duda repetire con LifeTours.',
+                      name: t('Carlos R.'),
+                      location: t('Mexico'),
+                      text: t('Viaje a Paris con mi familia y todo estuvo perfectamente organizado. Sin duda repetire con LifeTours.'),
                     ),
                     const SizedBox(height: 16),
                     _TestimonialCard(
-                      name: 'Ana L.',
-                      location: 'Argentina',
-                      text:
-                          'Los mejores destinos y precios. La atencion al cliente es excepcional, me ayudaron con cada detalle.',
+                      name: t('Ana L.'),
+                      location: t('Argentina'),
+                      text: t('Los mejores destinos y precios. La atencion al cliente es excepcional, me ayudaron con cada detalle.'),
                     ),
                   ],
                 ),
@@ -250,16 +247,16 @@ class DiscoverScreen extends StatelessWidget {
               const SizedBox(height: 40),
 
               // ── Consejos de viaje ──
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Consejos de viaje',
+                    t('Consejos de viaje'),
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
+                      color: context.primary,
                     ),
                   ),
                 ),
@@ -271,30 +268,26 @@ class DiscoverScreen extends StatelessWidget {
                   children: [
                     _TipCard(
                       number: '1',
-                      title: 'Planifica con anticipacion',
-                      description:
-                          'Reserva tus tours con al menos dos semanas de anticipacion para asegurar disponibilidad y mejores precios.',
+                      title: t('Planifica con anticipacion'),
+                      description: t('Reserva tus tours con al menos dos semanas de anticipacion para asegurar disponibilidad y mejores precios.'),
                     ),
                     const SizedBox(height: 12),
                     _TipCard(
                       number: '2',
-                      title: 'Empaca ligero',
-                      description:
-                          'Lleva solo lo esencial. La mayoria de nuestros tours incluyen transporte y alimentacion.',
+                      title: t('Empaca ligero'),
+                      description: t('Lleva solo lo esencial. La mayoria de nuestros tours incluyen transporte y alimentacion.'),
                     ),
                     const SizedBox(height: 12),
                     _TipCard(
                       number: '3',
-                      title: 'Revisa el clima',
-                      description:
-                          'Consulta el pronostico del tiempo antes de tu viaje para elegir la mejor fecha y preparar tu equipaje.',
+                      title: t('Revisa el clima'),
+                      description: t('Consulta el pronostico del tiempo antes de tu viaje para elegir la mejor fecha y preparar tu equipaje.'),
                     ),
                     const SizedBox(height: 12),
                     _TipCard(
                       number: '4',
-                      title: 'Lee las opiniones',
-                      description:
-                          'Revisa los comentarios de otros viajeros para elegir el tour que mejor se adapte a ti.',
+                      title: t('Lee las opiniones'),
+                      description: t('Revisa los comentarios de otros viajeros para elegir el tour que mejor se adapte a ti.'),
                     ),
                   ],
                 ),
@@ -306,50 +299,50 @@ class DiscoverScreen extends StatelessWidget {
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(32),
-                color: AppColors.primary,
-                child: const Column(
+                color: context.primary,
+                child: Column(
                   children: [
                     Text(
-                      'LifeTours',
+                      t('LifeTours'),
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.background,
+                        color: Theme.of(context).colorScheme.onPrimary,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
-                      'Tu puerta al mundo',
-                      style: TextStyle(fontSize: 14, color: AppColors.background),
+                      t('Tu puerta al mundo'),
+                      style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onPrimary),
                     ),
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.email, color: AppColors.background, size: 20),
-                        SizedBox(width: 8),
+                        Icon(Icons.email, color: Theme.of(context).colorScheme.onPrimary, size: 20),
+                        const SizedBox(width: 8),
                         Text(
-                          'contacto@lifetours.com',
-                          style: TextStyle(fontSize: 14, color: AppColors.background),
+                          t('contacto@lifetours.com'),
+                          style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onPrimary),
                         ),
                       ],
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.phone, color: AppColors.background, size: 20),
-                        SizedBox(width: 8),
+                        Icon(Icons.phone, color: Theme.of(context).colorScheme.onPrimary, size: 20),
+                        const SizedBox(width: 8),
                         Text(
-                          '+52 55 1234 5678',
-                          style: TextStyle(fontSize: 14, color: AppColors.background),
+                          t('+52 55 1234 5678'),
+                          style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.onPrimary),
                         ),
                       ],
                     ),
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
                     Text(
-                      '© 2026 LifeTours. Todos los derechos reservados.',
-                      style: TextStyle(fontSize: 12, color: AppColors.background),
+                      t('© 2026 LifeTours. Todos los derechos reservados.'),
+                      style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onPrimary),
                     ),
                   ],
                 ),
@@ -381,13 +374,13 @@ class _BenefitCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.primary),
+        border: Border.all(color: context.primary),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: AppColors.primary, size: 32),
+          Icon(icon, color: context.primary, size: 32),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
@@ -395,18 +388,18 @@ class _BenefitCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.primary,
+                    color: context.primary,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   description,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
-                    color: AppColors.accent,
+                    color: context.accent,
                     height: 1.4,
                   ),
                 ),
@@ -435,11 +428,11 @@ class _TestimonialCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: context.surface,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withAlpha(30),
+            color: context.primary.withAlpha(30),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -451,11 +444,11 @@ class _TestimonialCard extends StatelessWidget {
           Row(
             children: [
               CircleAvatar(
-                backgroundColor: AppColors.primary.withAlpha(60),
+                backgroundColor: context.primary.withAlpha(60),
                 child: Text(
                   name[0],
-                  style: const TextStyle(
-                    color: AppColors.primary,
+                  style: TextStyle(
+                    color: context.primary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -466,15 +459,15 @@ class _TestimonialCard extends StatelessWidget {
                 children: [
                   Text(
                     name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
+                      color: context.primary,
                     ),
                   ),
                   Text(
                     location,
-                    style: const TextStyle(fontSize: 12, color: AppColors.accent),
+                    style: TextStyle(fontSize: 12, color: context.accent),
                   ),
                 ],
               ),
@@ -483,9 +476,9 @@ class _TestimonialCard extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             '"$text"',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
-              color: AppColors.accent,
+              color: context.accent,
               height: 1.5,
               fontStyle: FontStyle.italic,
             ),
@@ -512,7 +505,7 @@ class _TipCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.accent.withAlpha(80)),
+        border: Border.all(color: AppColors.greenAccent.withAlpha(80)),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -521,15 +514,15 @@ class _TipCard extends StatelessWidget {
           Container(
             width: 32,
             height: 32,
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
+            decoration: BoxDecoration(
+              color: context.primary,
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
             child: Text(
               number,
-              style: const TextStyle(
-                color: AppColors.background,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onPrimary,
                 fontWeight: FontWeight.w600,
                 fontSize: 16,
               ),
@@ -542,18 +535,18 @@ class _TipCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.primary,
+                    color: context.primary,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   description,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
-                    color: AppColors.accent,
+                    color: context.accent,
                     height: 1.4,
                   ),
                 ),
@@ -591,14 +584,14 @@ class _CategoryCard extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            color: AppColors.primary.withAlpha(100),
+            color: context.primary.withAlpha(100),
           ),
           child: Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: AppColors.background,
+              color: Theme.of(context).colorScheme.onPrimary,
             ),
           ),
         ),

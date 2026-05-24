@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:lifetours/theme.dart';
 import 'package:lifetours/providers/providers.dart';
+import 'package:lifetours/i18n/translations.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -23,12 +24,12 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _signIn() {
+  void _signIn(String lang) {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Completa todos los campos')),
+        SnackBar(content: Text(AppTranslations.t('Completa todos los campos', lang))),
       );
       return;
     }
@@ -37,6 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = context.watch<SettingsProvider>().locale.languageCode;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -53,19 +55,19 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
               const SizedBox(height: 24),
-              const Text(
-                'Hola de nuevo',
+              Text(
+                AppTranslations.t('Hola de nuevo', lang),
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
+                  color: context.primary,
                   letterSpacing: -0.5,
                 ),
               ),
               const SizedBox(height: 4),
-              const Text(
-                'Inicia Sesion de Nuevo',
-                style: TextStyle(fontSize: 16, color: AppColors.accent),
+              Text(
+                AppTranslations.t('Inicia Sesion de Nuevo', lang),
+                style: TextStyle(fontSize: 16, color: context.accent),
               ),
               const SizedBox(height: 40),
               Consumer<AuthProvider>(
@@ -95,9 +97,9 @@ class _LoginScreenState extends State<LoginScreen> {
               TextField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  labelText: 'Correo Electronico',
-                  hintText: 'Correo Electronico',
+                decoration: InputDecoration(
+                  labelText: AppTranslations.t('Correo Electronico', lang),
+                  hintText: AppTranslations.t('Correo Electronico', lang),
                 ),
               ),
               const SizedBox(height: 16),
@@ -105,12 +107,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 controller: _passwordController,
                 obscureText: _obscurePassword,
                 decoration: InputDecoration(
-                  labelText: 'Contrasena',
-                  hintText: 'Contrasena',
+                  labelText: AppTranslations.t('Contrasena', lang),
+                  hintText: AppTranslations.t('Contrasena', lang),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                      color: AppColors.accent,
+                      color: AppColors.greenAccent,
                     ),
                     onPressed: () =>
                         setState(() => _obscurePassword = !_obscurePassword),
@@ -124,18 +126,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed:
-                          auth.status == AuthStatus.loading ? null : _signIn,
+                          auth.status == AuthStatus.loading ? null : () => _signIn(lang),
                       child: auth.status == AuthStatus.loading
-                          ? const SizedBox(
+                          ? SizedBox(
                               width: 20,
                               height: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: AppColors.background,
+                                color: Theme.of(context).colorScheme.onPrimary,
                               ),
                             )
-                          : const Text('Iniciar Sesion',
-                              style: TextStyle(fontSize: 16)),
+                          : Text(AppTranslations.t('Iniciar Sesion', lang),
+                              style: const TextStyle(fontSize: 16)),
                     ),
                   );
                 },

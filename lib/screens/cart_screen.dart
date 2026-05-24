@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:lifetours/theme.dart';
 import 'package:lifetours/models/models.dart';
 import 'package:lifetours/providers/providers.dart';
+import 'package:lifetours/i18n/translations.dart';
 import 'package:lifetours/widgets/bottom_nav_bar.dart';
 
 class CartScreen extends StatefulWidget {
@@ -30,26 +31,36 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   void _showEditDialog(CartItemModel item) {
+    final lang = context.read<SettingsProvider>().locale.languageCode;
     int tempParticipants = item.participants;
+    DateTime? tempDate = item.travelDate;
     showDialog(
       context: context,
       builder: (ctx) {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              title: const Text('Editar personas'),
+              title: Text(AppTranslations.t('Editar reservación', lang)),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     item.tourTitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
+                      color: context.primary,
                     ),
                   ),
                   const SizedBox(height: 24),
+                  Text(
+                    AppTranslations.t('Personas', lang),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: context.accent,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -64,15 +75,15 @@ class _CartScreenState extends State<CartScreen> {
                         width: 48,
                         height: 48,
                         decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.primary),
+                          border: Border.all(color: context.primary),
                           shape: BoxShape.circle,
                         ),
                         alignment: Alignment.center,
                         child: Text(
                           '$tempParticipants',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 18,
-                            color: AppColors.primary,
+                            color: context.primary,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -84,21 +95,63 @@ class _CartScreenState extends State<CartScreen> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 24),
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: tempDate ?? DateTime.now(),
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime.now().add(const Duration(days: 365)),
+                        locale: Locale(lang),
+                      );
+                      if (picked != null) {
+                        setDialogState(() => tempDate = picked);
+                      }
+                    },
+                    icon: Icon(
+                      Icons.calendar_today,
+                      color: tempDate != null
+                          ? AppColors.greenAccent
+                          : context.primary,
+                    ),
+                    label: Text(
+                      tempDate != null
+                          ? '${AppTranslations.t('Fecha:', lang)} ${tempDate!.day}/${tempDate!.month}/${tempDate!.year}'
+                          : AppTranslations.t('Seleccionar fecha', lang),
+                      style: TextStyle(
+                        color: tempDate != null
+                            ? AppColors.greenAccent
+                            : context.primary,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      side: BorderSide(
+                        color: tempDate != null
+                            ? AppColors.greenAccent
+                            : context.primary,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
                 ],
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(ctx).pop(),
-                  child: const Text('Cancelar'),
+                  child: Text(AppTranslations.t('Cancelar', lang)),
                 ),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.of(ctx).pop();
                     context
                         .read<CartProvider>()
-                        .updateParticipants(item.tourId, tempParticipants);
+                        .updateCartItem(item.tourId, tempParticipants, tempDate);
                   },
-                  child: const Text('Guardar'),
+                  child: Text(AppTranslations.t('Guardar', lang)),
                 ),
               ],
             );
@@ -110,17 +163,18 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = context.watch<SettingsProvider>().locale.languageCode;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
-        title: const Text('Carrito'),
+        title: Text(AppTranslations.t('Carrito', lang)),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
-            child: Icon(Icons.shopping_cart, color: AppColors.primary),
+            child: Icon(Icons.shopping_cart, color: context.primary),
           ),
         ],
       ),
@@ -131,10 +185,10 @@ class _CartScreenState extends State<CartScreen> {
               return const Center(child: CircularProgressIndicator());
             }
             if (cart.items.isEmpty) {
-              return const Center(
+              return Center(
                 child: Text(
-                  'Tu carrito está vacío',
-                  style: TextStyle(fontSize: 16, color: AppColors.accent),
+                  AppTranslations.t('Tu carrito está vacío', lang),
+                  style: TextStyle(fontSize: 16, color: context.accent),
                 ),
               );
             }
@@ -164,20 +218,20 @@ class _CartScreenState extends State<CartScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Total',
+                      Text(
+                        AppTranslations.t('Total', lang),
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.primary,
+                          color: context.primary,
                         ),
                       ),
                       Text(
                         '\$${cart.grandTotal.toStringAsFixed(2)}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.accent,
+                          color: AppColors.greenAccent,
                         ),
                       ),
                     ],
@@ -187,7 +241,7 @@ class _CartScreenState extends State<CartScreen> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () => context.push('/payment'),
-                      child: const Text('Pagar todo', style: TextStyle(fontSize: 16)),
+                      child: Text(AppTranslations.t('Pagar todo', lang), style: TextStyle(fontSize: 16)),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -217,11 +271,12 @@ class _CartCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final lang = context.watch<SettingsProvider>().locale.languageCode;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.primary),
+        border: Border.all(color: context.primary),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -240,14 +295,14 @@ class _CartCard extends StatelessWidget {
                   placeholder: (_, __) => Container(
                     width: 72,
                     height: 72,
-                    color: AppColors.accent.withAlpha(60),
-                    child: Icon(Icons.image_outlined, color: AppColors.accent),
+                    color: AppColors.greenAccent.withAlpha(60),
+                    child: Icon(Icons.image_outlined, color: AppColors.greenAccent),
                   ),
                   errorWidget: (_, __, ___) => Container(
                     width: 72,
                     height: 72,
-                    color: AppColors.accent.withAlpha(60),
-                    child: Icon(Icons.image_outlined, color: AppColors.accent),
+                    color: AppColors.greenAccent.withAlpha(60),
+                    child: Icon(Icons.image_outlined, color: AppColors.greenAccent),
                   ),
                 ),
               ),
@@ -258,45 +313,45 @@ class _CartCard extends StatelessWidget {
                   children: [
                     Text(
                       item.tourTitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.primary,
+                        color: context.primary,
                       ),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       item.destinationName,
-                      style: const TextStyle(fontSize: 14, color: AppColors.accent),
+                      style: TextStyle(fontSize: 14, color: context.accent),
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Personas ${item.participants}',
-                      style: const TextStyle(fontSize: 14, color: AppColors.accent),
+                      '${AppTranslations.t('Personas', lang)} ${item.participants}',
+                      style: TextStyle(fontSize: 14, color: context.accent),
                     ),
                     if (item.travelDate != null) ...[
                       const SizedBox(height: 6),
                       Text(
-                        'Fecha: ${item.travelDate!.day}/${item.travelDate!.month}/${item.travelDate!.year}',
-                        style: const TextStyle(fontSize: 14, color: AppColors.accent),
+                        '${AppTranslations.t('Fecha:', lang)} ${item.travelDate!.day}/${item.travelDate!.month}/${item.travelDate!.year}',
+                        style: TextStyle(fontSize: 14, color: context.accent),
                       ),
                     ],
                     const SizedBox(height: 6),
                     Text(
                       '\$${item.totalPrice.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.primary,
-                      ),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: context.primary,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              if (onDelete != null)
+            ),
+            if (onDelete != null)
                 IconButton(
                   onPressed: onDelete,
-                  icon: const Icon(Icons.delete_outline, color: AppColors.primary),
+                  icon: Icon(Icons.delete_outline, color: context.primary),
                 ),
             ],
           ),
@@ -308,7 +363,7 @@ class _CartCard extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: onEdit,
                     icon: const Icon(Icons.edit, size: 18),
-                    label: const Text('Editar', style: TextStyle(fontSize: 14)),
+                    label: Text(AppTranslations.t('Editar', lang), style: TextStyle(fontSize: 14)),
                   ),
                 ),
               if (onEdit != null && onPay != null) const SizedBox(width: 12),
@@ -317,7 +372,7 @@ class _CartCard extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: onPay,
                     icon: const Icon(Icons.payment, size: 18),
-                    label: const Text('Pagar', style: TextStyle(fontSize: 14)),
+                    label: Text(AppTranslations.t('Pagar', lang), style: TextStyle(fontSize: 14)),
                   ),
                 ),
             ],
@@ -338,11 +393,11 @@ class _CircleButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: onPressed != null ? AppColors.primary : AppColors.accent.withAlpha(100),
+        color: onPressed != null ? context.primary : AppColors.greenAccent.withAlpha(100),
         shape: BoxShape.circle,
       ),
       child: IconButton(
-        icon: Icon(icon, color: AppColors.background, size: 22),
+        icon: Icon(icon, color: Theme.of(context).colorScheme.onPrimary, size: 22),
         onPressed: onPressed,
         padding: EdgeInsets.zero,
         constraints: const BoxConstraints(minWidth: 48, minHeight: 48),

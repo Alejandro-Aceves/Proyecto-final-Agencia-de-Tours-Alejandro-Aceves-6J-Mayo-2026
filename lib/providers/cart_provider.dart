@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:lifetours/models/firestore_constants.dart';
 import 'package:lifetours/models/models.dart';
 import 'package:lifetours/services/services.dart';
 
@@ -80,6 +82,23 @@ class CartProvider extends ChangeNotifier {
           _userId!, tourId, participants);
     } catch (e) {
       _error = 'Error al actualizar participantes.';
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateCartItem(
+      String tourId, int participants, DateTime? travelDate) async {
+    if (_userId == null) return;
+    try {
+      final fields = <String, dynamic>{
+        CartItemFields.participants: participants,
+      };
+      if (travelDate != null) {
+        fields[CartItemFields.travelDate] = Timestamp.fromDate(travelDate);
+      }
+      await _firestoreService.updateCartItem(_userId!, tourId, fields);
+    } catch (e) {
+      _error = 'Error al actualizar la reservación.';
       notifyListeners();
     }
   }

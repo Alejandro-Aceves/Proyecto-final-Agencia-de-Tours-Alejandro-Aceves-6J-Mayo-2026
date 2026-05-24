@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:lifetours/theme.dart';
 import 'package:lifetours/models/models.dart';
 import 'package:lifetours/providers/providers.dart';
+import 'package:lifetours/i18n/translations.dart';
 import 'package:lifetours/widgets/bottom_nav_bar.dart';
 
 class FavoritesDetailScreen extends StatefulWidget {
@@ -31,17 +32,18 @@ class _FavoritesDetailScreenState extends State<FavoritesDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = context.watch<SettingsProvider>().locale.languageCode;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
-        title: const Text('Favoritos'),
+        title: Text(AppTranslations.t('Favoritos', lang)),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
-            child: Icon(Icons.favorite, color: AppColors.accent),
+            child: Icon(Icons.favorite, color: AppColors.greenAccent),
           ),
         ],
       ),
@@ -55,10 +57,10 @@ class _FavoritesDetailScreenState extends State<FavoritesDetailScreen> {
               return const Center(child: CircularProgressIndicator());
             }
             if (provider.favorites.isEmpty) {
-              return const Center(
+              return Center(
                 child: Text(
-                  'No tienes favoritos',
-                  style: TextStyle(fontSize: 16, color: AppColors.accent),
+                  AppTranslations.t('No tienes favoritos', lang),
+                  style: TextStyle(fontSize: 16, color: context.accent),
                 ),
               );
             }
@@ -99,7 +101,7 @@ class _FavoriteCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.primary),
+        border: Border.all(color: context.primary),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -114,14 +116,14 @@ class _FavoriteCard extends StatelessWidget {
               placeholder: (_, __) => Container(
                 width: 72,
                 height: 72,
-                color: AppColors.accent.withAlpha(60),
-                child: Icon(Icons.image_outlined, color: AppColors.accent),
+                color: AppColors.greenAccent.withAlpha(60),
+                child: Icon(Icons.image_outlined, color: AppColors.greenAccent),
               ),
               errorWidget: (_, __, ___) => Container(
                 width: 72,
                 height: 72,
-                color: AppColors.accent.withAlpha(60),
-                child: Icon(Icons.image_outlined, color: AppColors.accent),
+                color: AppColors.greenAccent.withAlpha(60),
+                child: Icon(Icons.image_outlined, color: AppColors.greenAccent),
               ),
             ),
           ),
@@ -132,25 +134,25 @@ class _FavoriteCard extends StatelessWidget {
               children: [
                 Text(
                   favorite.tourTitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.primary,
+                    color: context.primary,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   favorite.destinationName,
-                  style: const TextStyle(fontSize: 14, color: AppColors.accent),
+                  style: TextStyle(fontSize: 14, color: context.accent),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '\$${favorite.price.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.accent,
-                  ),
+                '\$${favorite.price.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.greenAccent,
+                ),
                 ),
               ],
             ),

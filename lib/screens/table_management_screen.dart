@@ -6,6 +6,9 @@ import 'package:lifetours/theme.dart';
 import 'package:lifetours/models/models.dart';
 import 'package:lifetours/services/services.dart';
 import 'package:lifetours/widgets/bottom_nav_bar.dart';
+import 'package:provider/provider.dart';
+import 'package:lifetours/providers/providers.dart';
+import 'package:lifetours/i18n/translations.dart';
 
 class TableManagementScreen extends StatefulWidget {
   final String collection;
@@ -20,6 +23,7 @@ class _TableManagementScreenState extends State<TableManagementScreen> {
   List<dynamic> _items = [];
   bool _loading = true;
   String? _error;
+  String _lang = '';
 
   @override
   void initState() {
@@ -41,7 +45,7 @@ class _TableManagementScreenState extends State<TableManagementScreen> {
           _items = data;
           break;
         case 'reservations':
-          final data = await _firestoreService.getUserReservations('');
+          final data = await _firestoreService.getAllReservations();
           _items = data;
           break;
         case 'reviews':
@@ -53,39 +57,89 @@ class _TableManagementScreenState extends State<TableManagementScreen> {
           _items = data;
       }
     } catch (e) {
-      _error = 'Error al cargar datos.';
+      _error = AppTranslations.t('Error al cargar datos.', _lang);
     }
     if (mounted) {
       setState(() => _loading = false);
     }
   }
 
-  String get _title {
-    switch (widget.collection) {
-      case 'destinations':
-        return 'Destinos';
-      case 'tours':
-        return 'Tours';
-      case 'reservations':
-        return 'Reservas';
-      case 'reviews':
-        return 'Resenas';
-      default:
-        return 'Usuarios';
+  String _getId(dynamic item) {
+    if (item is UserModel) return item.uid;
+    if (item is DestinationModel) return item.id;
+    if (item is TourModel) return item.id;
+    if (item is ReservationModel) return item.id;
+    if (item is ReviewModel) return item.id;
+    return '';
+  }
+
+  void _deleteItem(dynamic item) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(AppTranslations.t('Confirmar eliminacion', _lang)),
+        content: Text(AppTranslations.t('¿Estas seguro de eliminar este registro?', _lang)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(AppTranslations.t('Cancelar', _lang)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(AppTranslations.t('Eliminar', _lang)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    try {
+      final id = _getId(item);
+      await _firestoreService.hardDelete(widget.collection, id);
+      _loadItems();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppTranslations.t('Registro eliminado correctamente', _lang))),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${AppTranslations.t('Error al eliminar: ', _lang)}$e')),
+        );
+      }
     }
   }
 
-  void _showAddDialog() {
+  String get _title {
+    switch (widget.collection) {
+      case 'destinations':
+        return AppTranslations.t('Destinos', _lang);
+      case 'tours':
+        return AppTranslations.t('Tours', _lang);
+      case 'reservations':
+        return AppTranslations.t('Reservas', _lang);
+      case 'reviews':
+        return AppTranslations.t('Resenas', _lang);
+      default:
+        return AppTranslations.t('Usuarios', _lang);
+    }
+  }
+
+  void _showAddDialog({dynamic existingItem}) {
     showDialog(
       context: context,
-      builder: (ctx) => _AddRecordForm(collection: widget.collection, onSaved: () {
-        _loadItems();
-      }),
+      builder: (ctx) => _AddRecordForm(
+        collection: widget.collection,
+        onSaved: () => _loadItems(),
+        existingItem: existingItem,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    _lang = context.watch<SettingsProvider>().locale.languageCode;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -105,7 +159,7 @@ class _TableManagementScreenState extends State<TableManagementScreen> {
                     ),
                   )
                 : _items.isEmpty
-                    ? const Center(child: Text('No hay datos'))
+                    ? Center(child: Text(AppTranslations.t('No hay datos', _lang)))
                     : SingleChildScrollView(
                         padding: const EdgeInsets.symmetric(horizontal: 24),
                         child: Column(
@@ -114,10 +168,10 @@ class _TableManagementScreenState extends State<TableManagementScreen> {
                             const SizedBox(height: 16),
                             Text(
                               _title,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.primary,
+                                color: context.primary,
                                 letterSpacing: -0.5,
                               ),
                             ),
@@ -136,9 +190,9 @@ class _TableManagementScreenState extends State<TableManagementScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showAddDialog,
-        backgroundColor: AppColors.primary,
-        icon: const Icon(Icons.add, color: AppColors.background),
-        label: const Text('Agregar', style: TextStyle(color: AppColors.background)),
+        backgroundColor: context.primary,
+        icon: Icon(Icons.add, color: Theme.of(context).colorScheme.onPrimary),
+        label: Text(AppTranslations.t('Agregar', _lang), style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
       ),
       bottomNavigationBar: const AppBottomNavBar(currentIndex: 3),
     );
@@ -150,7 +204,7 @@ class _TableManagementScreenState extends State<TableManagementScreen> {
 
     if (item is UserModel) {
       title = item.name;
-      subtitle = '${item.email} · ${item.isAdmin ? "Admin" : "Usuario"}';
+      subtitle = '${item.email} · ${item.isAdmin ? AppTranslations.t("Admin", _lang) : AppTranslations.t("Usuario", _lang)}';
     } else if (item is DestinationModel) {
       title = item.name;
       subtitle = '${item.city}, ${item.country}';
@@ -172,7 +226,7 @@ class _TableManagementScreenState extends State<TableManagementScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.primary),
+        border: Border.all(color: context.primary),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -183,45 +237,51 @@ class _TableManagementScreenState extends State<TableManagementScreen> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.primary,
+                    color: context.primary,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: const TextStyle(fontSize: 13, color: AppColors.accent),
+                  style: TextStyle(fontSize: 13, color: context.accent),
                 ),
               ],
             ),
           ),
           Row(
             children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: const Text(
-                  'Editar',
-                  style: TextStyle(color: AppColors.background, fontSize: 12),
+              GestureDetector(
+                onTap: () => _showAddDialog(existingItem: item),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: context.primary,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    AppTranslations.t('Editar', _lang),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onPrimary, fontSize: 12),
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.primary),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: const Text(
-                  'Eliminar',
-                  style: TextStyle(color: AppColors.primary, fontSize: 12),
+              GestureDetector(
+                onTap: () => _deleteItem(item),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: context.primary),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    AppTranslations.t('Eliminar', _lang),
+                    style: TextStyle(color: context.primary, fontSize: 12),
+                  ),
                 ),
               ),
             ],
@@ -235,8 +295,13 @@ class _TableManagementScreenState extends State<TableManagementScreen> {
 class _AddRecordForm extends StatefulWidget {
   final String collection;
   final VoidCallback onSaved;
+  final dynamic existingItem;
 
-  const _AddRecordForm({required this.collection, required this.onSaved});
+  const _AddRecordForm({
+    required this.collection,
+    required this.onSaved,
+    this.existingItem,
+  });
 
   @override
   State<_AddRecordForm> createState() => _AddRecordFormState();
@@ -247,6 +312,7 @@ class _AddRecordFormState extends State<_AddRecordForm> {
   final _uuid = const Uuid();
   final _firestoreService = FirestoreService();
   bool _saving = false;
+  String _lang = '';
 
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -293,6 +359,57 @@ class _AddRecordFormState extends State<_AddRecordForm> {
   void initState() {
     super.initState();
     _loadReferences();
+    _populateFromExisting();
+  }
+
+  void _populateFromExisting() {
+    final item = widget.existingItem;
+    if (item == null) return;
+
+    if (item is UserModel) {
+      _nameController.text = item.name;
+      _emailController.text = item.email;
+      _isAdmin = item.isAdmin;
+    } else if (item is DestinationModel) {
+      _nameController.text = item.name;
+      _countryController.text = item.country;
+      _cityController.text = item.city;
+      _descriptionController.text = item.description;
+      _imageUrlController.text = item.imageUrl;
+      _isActive = item.isActive;
+    } else if (item is TourModel) {
+      _titleController.text = item.title;
+      _descriptionController.text = item.description;
+      _priceController.text = item.price.toString();
+      _imageUrlController.text = item.imageUrl;
+      _destinationIdController.text = item.destinationId;
+      _destinationNameController.text = item.destinationName;
+      _durationDaysController.text = item.durationDays.toString();
+      _capacityController.text = item.capacity.toString();
+      _availableSpotsController.text = item.availableSpots.toString();
+      _selectedCategories.addAll(item.categories.map((c) => c.name));
+      _isActive = item.isActive;
+    } else if (item is ReservationModel) {
+      _userIdController.text = item.userId;
+      _userNameController.text = item.userName;
+      _tourIdController.text = item.tourId;
+      _tourTitleController.text = item.tourTitle;
+      _tourImageUrlController.text = item.tourImageUrl;
+      _destinationNameController.text = item.destinationName;
+      _pricePerPersonController.text = item.pricePerPerson.toString();
+      _participantsController.text = item.participants.toString();
+      _totalPriceController.text = item.totalPrice.toString();
+      _travelDate = item.travelDate;
+      _status = item.status;
+      _notesController.text = item.notes ?? '';
+    } else if (item is ReviewModel) {
+      _userIdController.text = item.userId;
+      _userNameController.text = item.userName;
+      _tourIdController.text = item.tourId;
+      _tourTitleController.text = item.tourTitle;
+      _rating = item.rating;
+      _commentController.text = item.comment;
+    }
   }
 
   Future<void> _loadReferences() async {
@@ -334,28 +451,49 @@ class _AddRecordFormState extends State<_AddRecordForm> {
     super.dispose();
   }
 
+  bool get _isEditing => widget.existingItem != null;
+
+  String _existingId() {
+    final item = widget.existingItem;
+    if (item is UserModel) return item.uid;
+    if (item is DestinationModel) return item.id;
+    if (item is TourModel) return item.id;
+    if (item is ReservationModel) return item.id;
+    if (item is ReviewModel) return item.id;
+    return '';
+  }
+
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _saving = true);
 
     try {
+      final id = _isEditing ? _existingId() : _uuid.v4();
+
       switch (widget.collection) {
-        case 'destinations':
-          await _firestoreService.addDestination(DestinationModel(
-            id: _uuid.v4(),
+        case 'destinations': {
+          final model = DestinationModel(
+            id: id,
             name: _nameController.text.trim(),
             country: _countryController.text.trim(),
             city: _cityController.text.trim(),
             description: _descriptionController.text.trim(),
             imageUrl: _imageUrlController.text.trim(),
-            activities: const [],
+            activities: (widget.existingItem as DestinationModel?)?.activities ?? [],
             isActive: _isActive,
-            createdAt: DateTime.now(),
-          ));
+            createdAt: (widget.existingItem as DestinationModel?)?.createdAt ?? DateTime.now(),
+          );
+          if (_isEditing) {
+            await _firestoreService.updateDestination(model);
+          } else {
+            await _firestoreService.addDestination(model);
+          }
           break;
-        case 'tours':
-          await _firestoreService.addTour(TourModel(
-            id: _uuid.v4(),
+        }
+        case 'tours': {
+          final existing = widget.existingItem as TourModel?;
+          final model = TourModel(
+            id: id,
             title: _titleController.text.trim(),
             description: _descriptionController.text.trim(),
             price: double.parse(_priceController.text.trim()),
@@ -368,15 +506,21 @@ class _AddRecordFormState extends State<_AddRecordForm> {
             durationDays: int.parse(_durationDaysController.text.trim()),
             capacity: int.parse(_capacityController.text.trim()),
             availableSpots: int.parse(_availableSpotsController.text.trim()),
-            averageRating: 0,
-            reviewCount: 0,
+            averageRating: existing?.averageRating ?? 0,
+            reviewCount: existing?.reviewCount ?? 0,
             isActive: _isActive,
-            createdAt: DateTime.now(),
-          ));
+            createdAt: existing?.createdAt ?? DateTime.now(),
+          );
+          if (_isEditing) {
+            await _firestoreService.updateTour(model);
+          } else {
+            await _firestoreService.addTour(model);
+          }
           break;
-        case 'reservations':
-          await _firestoreService.addReservation(ReservationModel(
-            id: _uuid.v4(),
+        }
+        case 'reservations': {
+          final model = ReservationModel(
+            id: id,
             userId: _userIdController.text.trim(),
             userName: _userNameController.text.trim(),
             tourId: _tourIdController.text.trim(),
@@ -391,36 +535,54 @@ class _AddRecordFormState extends State<_AddRecordForm> {
             notes: _notesController.text.trim().isEmpty
                 ? null
                 : _notesController.text.trim(),
-            createdAt: DateTime.now(),
-          ));
+            createdAt: (widget.existingItem as ReservationModel?)?.createdAt ?? DateTime.now(),
+          );
+          if (_isEditing) {
+            await _firestoreService.updateReservation(model);
+          } else {
+            await _firestoreService.addReservation(model);
+          }
           break;
-        case 'reviews':
-          await _firestoreService.addReview(ReviewModel(
-            id: _uuid.v4(),
+        }
+        case 'reviews': {
+          final model = ReviewModel(
+            id: id,
             userId: _userIdController.text.trim(),
             userName: _userNameController.text.trim(),
             tourId: _tourIdController.text.trim(),
             tourTitle: _tourTitleController.text.trim(),
             rating: _rating,
             comment: _commentController.text.trim(),
-            createdAt: DateTime.now(),
-          ));
+            createdAt: (widget.existingItem as ReviewModel?)?.createdAt ?? DateTime.now(),
+          );
+          if (_isEditing) {
+            await _firestoreService.updateReview(model);
+          } else {
+            await _firestoreService.addReview(model);
+          }
           break;
-        default:
-          await _firestoreService.addUser(UserModel(
-            uid: _uuid.v4(),
+        }
+        default: {
+          final model = UserModel(
+            uid: id,
             name: _nameController.text.trim(),
             email: _emailController.text.trim(),
             role: _isAdmin ? UserRole.admin : UserRole.user,
-            createdAt: DateTime.now(),
-          ));
+            createdAt: (widget.existingItem as UserModel?)?.createdAt ?? DateTime.now(),
+          );
+          if (_isEditing) {
+            await _firestoreService.updateUser(model);
+          } else {
+            await _firestoreService.addUser(model);
+          }
+        }
       }
 
       if (mounted) {
         Navigator.of(context).pop();
         widget.onSaved();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Registro agregado correctamente')),
+          SnackBar(content: Text(_isEditing ? AppTranslations.t('Registro actualizado correctamente', _lang) : AppTranslations.t('Registro agregado correctamente', _lang))),
         );
       }
     } catch (e) {
@@ -436,10 +598,11 @@ class _AddRecordFormState extends State<_AddRecordForm> {
 
   @override
   Widget build(BuildContext context) {
+    _lang = context.watch<SettingsProvider>().locale.languageCode;
     return Dialog.fullscreen(
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Agregar ${_titleFor(widget.collection)}'),
+          title: Text('${_isEditing ? AppTranslations.t("Editar", _lang) : AppTranslations.t("Agregar", _lang)} ${_titleFor(widget.collection)}'),
           actions: [
             TextButton(
               onPressed: _saving ? null : _save,
@@ -448,7 +611,7 @@ class _AddRecordFormState extends State<_AddRecordForm> {
                       width: 20, height: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Guardar'),
+                  : Text(AppTranslations.t('Guardar', _lang)),
             ),
           ],
         ),
@@ -468,11 +631,11 @@ class _AddRecordFormState extends State<_AddRecordForm> {
 
   String _titleFor(String collection) {
     switch (collection) {
-      case 'destinations': return 'Destino';
-      case 'tours': return 'Tour';
-      case 'reservations': return 'Reserva';
-      case 'reviews': return 'Resena';
-      default: return 'Usuario';
+      case 'destinations': return AppTranslations.t('Destino', _lang);
+      case 'tours': return AppTranslations.t('Tour', _lang);
+      case 'reservations': return AppTranslations.t('Reserva', _lang);
+      case 'reviews': return AppTranslations.t('Resena', _lang);
+      default: return AppTranslations.t('Usuario', _lang);
     }
   }
 
@@ -494,17 +657,17 @@ class _AddRecordFormState extends State<_AddRecordForm> {
     required String Function(dynamic) itemSubtitle,
     required void Function(dynamic) onSelected,
   }) {
-    final displayText = value ?? 'Seleccionar...';
+    final displayText = value ?? AppTranslations.t('Seleccionar...', _lang);
     return InkWell(
       onTap: _loadingRefs ? null : () async {
         final result = await showDialog<dynamic>(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: Text(label),
+            title: Text(AppTranslations.t(label, _lang)),
             content: SizedBox(
               width: double.maxFinite,
               child: items.isEmpty
-                  ? const Text('No hay datos disponibles')
+                  ? Text(AppTranslations.t('No hay datos disponibles', _lang))
                   : ListView.builder(
                       shrinkWrap: true,
                       itemCount: items.length,
@@ -521,7 +684,7 @@ class _AddRecordFormState extends State<_AddRecordForm> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text('Cancelar'),
+                child: Text(AppTranslations.t('Cancelar', _lang)),
               ),
             ],
           ),
@@ -529,7 +692,7 @@ class _AddRecordFormState extends State<_AddRecordForm> {
         if (result != null) onSelected(result);
       },
       child: InputDecorator(
-        decoration: InputDecoration(labelText: label),
+        decoration: InputDecoration(labelText: AppTranslations.t(label, _lang)),
         child: Row(
           children: [
             Expanded(child: Text(displayText)),
@@ -545,15 +708,15 @@ class _AddRecordFormState extends State<_AddRecordForm> {
 
   List<Widget> _userFields() {
     return [
-      _field('Nombre', _nameController, validator: (v) => v?.isEmpty == true ? 'Requerido' : null),
+      _field(AppTranslations.t('Nombre', _lang), _nameController, validator: (v) => v?.isEmpty == true ? AppTranslations.t('Requerido', _lang) : null),
       const SizedBox(height: 16),
-      _field('Correo electronico', _emailController,
+      _field(AppTranslations.t('Correo electronico', _lang), _emailController,
         keyboardType: TextInputType.emailAddress,
-        validator: (v) => v?.isEmpty == true ? 'Requerido' : null,
+        validator: (v) => v?.isEmpty == true ? AppTranslations.t('Requerido', _lang) : null,
       ),
       const SizedBox(height: 16),
       SwitchListTile(
-        title: const Text('Administrador'),
+        title: Text(AppTranslations.t('Administrador', _lang)),
         value: _isAdmin,
         onChanged: (v) => setState(() => _isAdmin = v),
         contentPadding: EdgeInsets.zero,
@@ -565,22 +728,22 @@ class _AddRecordFormState extends State<_AddRecordForm> {
 
   List<Widget> _destinationFields() {
     return [
-      _field('Nombre', _nameController, validator: (v) => v?.isEmpty == true ? 'Requerido' : null),
+      _field(AppTranslations.t('Nombre', _lang), _nameController, validator: (v) => v?.isEmpty == true ? AppTranslations.t('Requerido', _lang) : null),
       const SizedBox(height: 16),
-      _field('Ciudad', _cityController, validator: (v) => v?.isEmpty == true ? 'Requerido' : null),
+      _field(AppTranslations.t('Ciudad', _lang), _cityController, validator: (v) => v?.isEmpty == true ? AppTranslations.t('Requerido', _lang) : null),
       const SizedBox(height: 16),
-      _field('Pais', _countryController, validator: (v) => v?.isEmpty == true ? 'Requerido' : null),
+      _field(AppTranslations.t('Pais', _lang), _countryController, validator: (v) => v?.isEmpty == true ? AppTranslations.t('Requerido', _lang) : null),
       const SizedBox(height: 16),
-      _field('Descripcion', _descriptionController, maxLines: 3,
-        validator: (v) => v?.isEmpty == true ? 'Requerido' : null,
+      _field(AppTranslations.t('Descripcion', _lang), _descriptionController, maxLines: 3,
+        validator: (v) => v?.isEmpty == true ? AppTranslations.t('Requerido', _lang) : null,
       ),
       const SizedBox(height: 16),
-      _field('URL de imagen', _imageUrlController,
-        validator: (v) => v?.isEmpty == true ? 'Requerido' : null,
+      _field(AppTranslations.t('URL de imagen', _lang), _imageUrlController,
+        validator: (v) => v?.isEmpty == true ? AppTranslations.t('Requerido', _lang) : null,
       ),
       const SizedBox(height: 16),
       SwitchListTile(
-        title: const Text('Activo'),
+        title: Text(AppTranslations.t('Activo', _lang)),
         value: _isActive,
         onChanged: (v) => setState(() => _isActive = v),
         contentPadding: EdgeInsets.zero,
@@ -592,18 +755,18 @@ class _AddRecordFormState extends State<_AddRecordForm> {
 
   List<Widget> _tourFields() {
     return [
-      _field('Titulo', _titleController, validator: (v) => v?.isEmpty == true ? 'Requerido' : null),
+      _field(AppTranslations.t('Titulo', _lang), _titleController, validator: (v) => v?.isEmpty == true ? AppTranslations.t('Requerido', _lang) : null),
       const SizedBox(height: 16),
-      _field('Descripcion', _descriptionController, maxLines: 3,
-        validator: (v) => v?.isEmpty == true ? 'Requerido' : null,
+      _field(AppTranslations.t('Descripcion', _lang), _descriptionController, maxLines: 3,
+        validator: (v) => v?.isEmpty == true ? AppTranslations.t('Requerido', _lang) : null,
       ),
       const SizedBox(height: 16),
-      _field('Precio', _priceController, keyboardType: TextInputType.numberWithOptions(decimal: true),
-        validator: (v) => v?.isEmpty == true ? 'Requerido' : null,
+      _field(AppTranslations.t('Precio', _lang), _priceController, keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        validator: (v) => v?.isEmpty == true ? AppTranslations.t('Requerido', _lang) : null,
       ),
       const SizedBox(height: 16),
-      _field('URL de imagen', _imageUrlController,
-        validator: (v) => v?.isEmpty == true ? 'Requerido' : null,
+      _field(AppTranslations.t('URL de imagen', _lang), _imageUrlController,
+        validator: (v) => v?.isEmpty == true ? AppTranslations.t('Requerido', _lang) : null,
       ),
       _refPicker(
         label: 'Destino',
@@ -620,22 +783,22 @@ class _AddRecordFormState extends State<_AddRecordForm> {
         },
       ),
       const SizedBox(height: 16),
-      _field('Duracion (dias)', _durationDaysController,
+      _field(AppTranslations.t('Duracion (dias)', _lang), _durationDaysController,
         keyboardType: TextInputType.number,
-        validator: (v) => v?.isEmpty == true ? 'Requerido' : null,
+        validator: (v) => v?.isEmpty == true ? AppTranslations.t('Requerido', _lang) : null,
       ),
       const SizedBox(height: 16),
-      _field('Capacidad', _capacityController,
+      _field(AppTranslations.t('Capacidad', _lang), _capacityController,
         keyboardType: TextInputType.number,
-        validator: (v) => v?.isEmpty == true ? 'Requerido' : null,
+        validator: (v) => v?.isEmpty == true ? AppTranslations.t('Requerido', _lang) : null,
       ),
       const SizedBox(height: 16),
-      _field('Lugares disponibles', _availableSpotsController,
+      _field(AppTranslations.t('Lugares disponibles', _lang), _availableSpotsController,
         keyboardType: TextInputType.number,
-        validator: (v) => v?.isEmpty == true ? 'Requerido' : null,
+        validator: (v) => v?.isEmpty == true ? AppTranslations.t('Requerido', _lang) : null,
       ),
       const SizedBox(height: 16),
-      const Text('Categorias', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+      Text(AppTranslations.t('Categorias', _lang), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
       const SizedBox(height: 8),
       Wrap(
         spacing: 8,
@@ -659,7 +822,7 @@ class _AddRecordFormState extends State<_AddRecordForm> {
       ),
       const SizedBox(height: 16),
       SwitchListTile(
-        title: const Text('Activo'),
+        title: Text(AppTranslations.t('Activo', _lang)),
         value: _isActive,
         onChanged: (v) => setState(() => _isActive = v),
         contentPadding: EdgeInsets.zero,
@@ -704,14 +867,14 @@ class _AddRecordFormState extends State<_AddRecordForm> {
         },
       ),
       const SizedBox(height: 16),
-      _field('Participantes', _participantsController,
+      _field(AppTranslations.t('Participantes', _lang), _participantsController,
         keyboardType: TextInputType.number,
-        validator: (v) => v?.isEmpty == true ? 'Requerido' : null,
+        validator: (v) => v?.isEmpty == true ? AppTranslations.t('Requerido', _lang) : null,
       ),
       const SizedBox(height: 16),
-      _field('Precio total', _totalPriceController,
-        keyboardType: TextInputType.numberWithOptions(decimal: true),
-        validator: (v) => v?.isEmpty == true ? 'Requerido' : null,
+      _field(AppTranslations.t('Precio total', _lang), _totalPriceController,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        validator: (v) => v?.isEmpty == true ? AppTranslations.t('Requerido', _lang) : null,
       ),
       const SizedBox(height: 16),
       InkWell(
@@ -725,7 +888,7 @@ class _AddRecordFormState extends State<_AddRecordForm> {
           if (date != null) setState(() => _travelDate = date);
         },
         child: InputDecorator(
-          decoration: const InputDecoration(labelText: 'Fecha de viaje'),
+          decoration: InputDecoration(labelText: AppTranslations.t('Fecha de viaje', _lang)),
           child: Text(
             '${_travelDate.day}/${_travelDate.month}/${_travelDate.year}',
           ),
@@ -734,7 +897,7 @@ class _AddRecordFormState extends State<_AddRecordForm> {
       const SizedBox(height: 16),
       DropdownButtonFormField<ReservationStatus>(
         initialValue: _status,
-        decoration: const InputDecoration(labelText: 'Estado'),
+        decoration: InputDecoration(labelText: AppTranslations.t('Estado', _lang)),
         items: ReservationStatus.values.map((s) => DropdownMenuItem(
           value: s,
           child: Text(s.label),
@@ -744,7 +907,7 @@ class _AddRecordFormState extends State<_AddRecordForm> {
         },
       ),
       const SizedBox(height: 16),
-      _field('Notas', _notesController, maxLines: 2),
+      _field(AppTranslations.t('Notas', _lang), _notesController, maxLines: 2),
     ];
   }
 
@@ -784,7 +947,7 @@ class _AddRecordFormState extends State<_AddRecordForm> {
       const SizedBox(height: 16),
       DropdownButtonFormField<int>(
         initialValue: _rating,
-        decoration: const InputDecoration(labelText: 'Calificacion'),
+        decoration: InputDecoration(labelText: AppTranslations.t('Calificacion', _lang)),
         items: [1, 2, 3, 4, 5].map((r) => DropdownMenuItem(
           value: r,
           child: Text('${List.filled(r, '★').join()} ($r/5)'),
@@ -794,8 +957,8 @@ class _AddRecordFormState extends State<_AddRecordForm> {
         },
       ),
       const SizedBox(height: 16),
-      _field('Comentario', _commentController, maxLines: 3,
-        validator: (v) => v?.isEmpty == true ? 'Requerido' : null,
+      _field(AppTranslations.t('Comentario', _lang), _commentController, maxLines: 3,
+        validator: (v) => v?.isEmpty == true ? AppTranslations.t('Requerido', _lang) : null,
       ),
     ];
   }

@@ -7,6 +7,7 @@ import 'package:lifetours/models/models.dart';
 import 'package:lifetours/services/services.dart';
 import 'package:lifetours/providers/providers.dart';
 import 'package:lifetours/widgets/bottom_nav_bar.dart';
+import 'package:lifetours/i18n/translations.dart';
 
 class BookingScreen extends StatefulWidget {
   final String? tourId;
@@ -54,12 +55,13 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   void _addToCart() async {
+    final lang = context.read<SettingsProvider>().locale.languageCode;
     if (_tour == null) return;
     if (_travelDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Selecciona una fecha para el tour'),
-          backgroundColor: AppColors.primary,
+        SnackBar(
+          content: Text(AppTranslations.t('Selecciona una fecha para el tour', lang)),
+          backgroundColor: context.primary,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -82,8 +84,8 @@ class _BookingScreenState extends State<BookingScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${_tour!.title} agregado al carrito'),
-        backgroundColor: AppColors.primary,
+        content: Text('${_tour!.title} ${AppTranslations.t('agregado al carrito', lang)}'),
+        backgroundColor: context.primary,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -92,6 +94,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = context.watch<SettingsProvider>().locale.languageCode;
     final totalPrice = _tour != null ? _tour!.price * _participants : 0.0;
 
     return Scaffold(
@@ -100,16 +103,16 @@ class _BookingScreenState extends State<BookingScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
-        title: const Text(
-          'Reservar',
-          style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600),
+        title: Text(
+          AppTranslations.t('Reservar', lang),
+          style: TextStyle(color: context.primary, fontWeight: FontWeight.w600),
         ),
       ),
       body: SafeArea(
         child: _loading
             ? const Center(child: CircularProgressIndicator())
             : _tour == null
-                ? const Center(child: Text('Tour no encontrado'))
+                ? Center(child: Text(AppTranslations.t('Tour no encontrado', lang)))
                 : Column(
                       children: [
                         Expanded(
@@ -129,17 +132,17 @@ class _BookingScreenState extends State<BookingScreen> {
                                     placeholder: (_, __) => Container(
                                       width: double.infinity,
                                       height: 200,
-                                      color: AppColors.primary,
+                                      color: context.primary,
                                       child: Center(
-                                        child: Icon(Icons.image_outlined, size: 48, color: AppColors.background),
+                                        child: Icon(Icons.image_outlined, size: 48, color: Colors.white),
                                       ),
                                     ),
                                     errorWidget: (_, __, ___) => Container(
                                       width: double.infinity,
                                       height: 200,
-                                      color: AppColors.primary,
+                                      color: context.primary,
                                       child: Center(
-                                        child: Icon(Icons.image_outlined, size: 48, color: AppColors.background),
+                                        child: Icon(Icons.image_outlined, size: 48, color: Colors.white),
                                       ),
                                     ),
                                   ),
@@ -147,29 +150,29 @@ class _BookingScreenState extends State<BookingScreen> {
                                 const SizedBox(height: 24),
                                 Text(
                                   _tour!.title,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 28,
                                     fontWeight: FontWeight.w600,
-                                    color: AppColors.primary,
+                                    color: context.primary,
                                     letterSpacing: -0.5,
                                   ),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
                                   _tour!.destinationName,
-                                  style: const TextStyle(fontSize: 16, color: AppColors.accent),
+                                  style: TextStyle(fontSize: 16, color: context.accent),
                                 ),
                                 const SizedBox(height: 24),
                                 Text(
                                   _tour!.description,
-                                  style: const TextStyle(fontSize: 14, color: AppColors.accent, height: 1.5),
+                                  style: TextStyle(fontSize: 14, color: context.accent, height: 1.5),
                                 ),
                                 const SizedBox(height: 24),
                                 Container(
                                   width: double.infinity,
                                   padding: const EdgeInsets.all(20),
                                   decoration: BoxDecoration(
-                                    border: Border.all(color: AppColors.primary),
+                                    border: Border.all(color: context.primary),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Column(
@@ -178,16 +181,16 @@ class _BookingScreenState extends State<BookingScreen> {
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          const Text(
-                                            'Personas',
-                                            style: TextStyle(fontSize: 18, color: AppColors.primary),
+                                          Text(
+                                            AppTranslations.t('Personas', lang),
+                                            style: TextStyle(fontSize: 18, color: context.primary),
                                           ),
                                           Text(
                                             '$_participants',
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 18,
                                               fontWeight: FontWeight.w600,
-                                              color: AppColors.primary,
+                                              color: context.primary,
                                             ),
                                           ),
                                         ],
@@ -196,15 +199,15 @@ class _BookingScreenState extends State<BookingScreen> {
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          const Text(
-                                            'Precio por persona',
-                                            style: TextStyle(fontSize: 16, color: AppColors.primary),
+                                          Text(
+                                            AppTranslations.t('Precio por persona', lang),
+                                            style: TextStyle(fontSize: 16, color: context.primary),
                                           ),
                                           Text(
                                             '\$${_tour!.price.toStringAsFixed(2)}',
                                             style: const TextStyle(
                                               fontSize: 16,
-                                              color: AppColors.accent,
+                                              color: AppColors.greenAccent,
                                             ),
                                           ),
                                         ],
@@ -213,12 +216,12 @@ class _BookingScreenState extends State<BookingScreen> {
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          const Text(
-                                            'Total',
+                                          Text(
+                                            AppTranslations.t('Total', lang),
                                             style: TextStyle(
                                               fontSize: 18,
                                               fontWeight: FontWeight.w600,
-                                              color: AppColors.primary,
+                                              color: context.primary,
                                             ),
                                           ),
                                           Text(
@@ -226,7 +229,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                             style: const TextStyle(
                                               fontSize: 22,
                                               fontWeight: FontWeight.w600,
-                                              color: AppColors.accent,
+                                              color: AppColors.greenAccent,
                                             ),
                                           ),
                                         ],
@@ -242,26 +245,26 @@ class _BookingScreenState extends State<BookingScreen> {
                                     icon: Icon(
                                       Icons.calendar_today,
                                       color: _travelDate != null
-                                          ? AppColors.accent
-                                          : AppColors.primary,
+                                          ? AppColors.greenAccent
+                                            : context.primary,
                                     ),
                                     label: Text(
                                       _travelDate != null
-                                          ? 'Fecha: ${_travelDate!.day}/${_travelDate!.month}/${_travelDate!.year}'
-                                          : 'Seleccionar fecha del tour',
+                                          ? '${AppTranslations.t('Fecha:', lang)} ${_travelDate!.day}/${_travelDate!.month}/${_travelDate!.year}'
+                                          : AppTranslations.t('Seleccionar fecha del tour', lang),
                                       style: TextStyle(
                                         fontSize: 15,
                                         color: _travelDate != null
-                                            ? AppColors.accent
-                                            : AppColors.primary,
+                                            ? AppColors.greenAccent
+                                            : context.primary,
                                       ),
                                     ),
                                     style: OutlinedButton.styleFrom(
                                       padding: const EdgeInsets.symmetric(vertical: 14),
                                       side: BorderSide(
                                         color: _travelDate != null
-                                            ? AppColors.accent
-                                            : AppColors.primary,
+                                            ? AppColors.greenAccent
+                                            : context.primary,
                                       ),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(12),
@@ -284,15 +287,15 @@ class _BookingScreenState extends State<BookingScreen> {
                                       width: 48,
                                       height: 48,
                                       decoration: BoxDecoration(
-                                        border: Border.all(color: AppColors.primary),
+                                        border: Border.all(color: context.primary),
                                         shape: BoxShape.circle,
                                       ),
                                       alignment: Alignment.center,
                                       child: Text(
                                         '$_participants',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 18,
-                                          color: AppColors.primary,
+                                          color: context.primary,
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
@@ -318,7 +321,7 @@ class _BookingScreenState extends State<BookingScreen> {
                             child: ElevatedButton.icon(
                               onPressed: _addToCart,
                               icon: const Icon(Icons.shopping_cart),
-                              label: const Text('Agregar al carrito', style: TextStyle(fontSize: 16)),
+                              label: Text(AppTranslations.t('Agregar al carrito', lang), style: const TextStyle(fontSize: 16)),
                             ),
                           ),
                         ),
@@ -341,11 +344,11 @@ class _CircleButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: onPressed != null ? AppColors.primary : AppColors.accent.withAlpha(100),
+        color: onPressed != null ? context.primary : AppColors.greenAccent.withAlpha(100),
         shape: BoxShape.circle,
       ),
       child: IconButton(
-        icon: Icon(icon, color: AppColors.background, size: 22),
+        icon: Icon(icon, color: Theme.of(context).colorScheme.onPrimary, size: 22),
         onPressed: onPressed,
         padding: EdgeInsets.zero,
         constraints: const BoxConstraints(minWidth: 48, minHeight: 48),

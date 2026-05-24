@@ -7,6 +7,7 @@ import 'package:lifetours/models/models.dart';
 import 'package:lifetours/services/services.dart';
 import 'package:lifetours/providers/providers.dart';
 import 'package:lifetours/widgets/bottom_nav_bar.dart';
+import 'package:lifetours/i18n/translations.dart';
 
 class DestinationDetailScreen extends StatefulWidget {
   final String? destinationId;
@@ -51,6 +52,7 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = context.watch<SettingsProvider>().locale.languageCode;
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -58,13 +60,13 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
             expandedHeight: 240,
             pinned: true,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: AppColors.background),
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () => context.pop(),
             ),
             actions: [
               Padding(
                 padding: const EdgeInsets.only(right: 16),
-                child: Icon(Icons.favorite_border, color: AppColors.background),
+                child: Icon(Icons.favorite_border, color: Colors.white),
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
@@ -80,22 +82,22 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
                         width: double.infinity,
                         height: 240,
                         placeholder: (_, __) => Container(
-                          color: AppColors.primary,
+                          color: context.primary,
                           child: Center(
-                            child: Icon(Icons.image_outlined, size: 64, color: AppColors.background),
+                            child: Icon(Icons.image_outlined, size: 64, color: Colors.white),
                           ),
                         ),
                         errorWidget: (_, __, ___) => Container(
-                          color: AppColors.primary,
+                          color: context.primary,
                           child: Center(
-                            child: Icon(Icons.image_outlined, size: 64, color: AppColors.background),
+                            child: Icon(Icons.image_outlined, size: 64, color: Colors.white),
                           ),
                         ),
                       )
                     : Container(
-                        color: AppColors.primary,
+                        color: context.primary,
                         child: Center(
-                          child: Icon(Icons.image_outlined, size: 64, color: AppColors.background),
+                          child: Icon(Icons.image_outlined, size: 64, color: Colors.white),
                         ),
                       ),
               ),
@@ -108,7 +110,7 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
                     child: Center(child: CircularProgressIndicator()),
                   )
                 : _destination == null
-                    ? const Center(child: Text('Destino no encontrado'))
+                    ? Center(child: Text(AppTranslations.t('Destino no encontrado', lang)))
                     : Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24),
                         child: Column(
@@ -117,43 +119,43 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
                             const SizedBox(height: 24),
                             Text(
                               _destination!.name,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.primary,
+                                color: context.primary,
                                 letterSpacing: -0.5,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               '${_destination!.city}, ${_destination!.country}',
-                              style: const TextStyle(fontSize: 16, color: AppColors.accent),
+                              style: TextStyle(fontSize: 16, color: context.accent),
                             ),
                             const SizedBox(height: 24),
-                            const Text(
-                              'Detalles',
+                            Text(
+                              AppTranslations.t('Detalles', lang),
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.primary,
+                                color: context.primary,
                               ),
                             ),
                             const SizedBox(height: 8),
                             Text(
                               _destination!.description,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 14,
-                                color: AppColors.accent,
+                                color: context.accent,
                                 height: 1.6,
                               ),
                             ),
                             const SizedBox(height: 24),
-                            const Text(
-                              'Actividades',
+                            Text(
+                              AppTranslations.t('Actividades', lang),
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.primary,
+                                color: context.primary,
                               ),
                             ),
                             const SizedBox(height: 12),
@@ -166,12 +168,12 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
                             ),
                             if (_tours.isNotEmpty) ...[
                               const SizedBox(height: 24),
-                              const Text(
-                                'Tours disponibles',
+                              Text(
+                                AppTranslations.t('Tours disponibles', lang),
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w600,
-                                  color: AppColors.primary,
+                                  color: context.primary,
                                 ),
                               ),
                               const SizedBox(height: 12),
@@ -210,7 +212,7 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
                           ],
                         ),
                       ),
-          ),
+                    ),
         ],
       ),
       bottomNavigationBar: const AppBottomNavBar(currentIndex: 1),
@@ -227,14 +229,14 @@ class _ActivityChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.primary),
+        border: Border.all(color: context.primary),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 13,
-          color: AppColors.primary,
+          color: context.primary,
           fontWeight: FontWeight.w500,
         ),
       ),
@@ -256,13 +258,14 @@ class _TourListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final lang = context.watch<SettingsProvider>().locale.languageCode;
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.primary),
+          border: Border.all(color: context.primary),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -277,14 +280,14 @@ class _TourListItem extends StatelessWidget {
                 placeholder: (_, __) => Container(
                   width: 72,
                   height: 72,
-                  color: AppColors.accent.withAlpha(60),
-                  child: Icon(Icons.image_outlined, color: AppColors.accent),
+                  color: AppColors.greenAccent.withAlpha(60),
+                  child: Icon(Icons.image_outlined, color: AppColors.greenAccent),
                 ),
                 errorWidget: (_, __, ___) => Container(
                   width: 72,
                   height: 72,
-                  color: AppColors.accent.withAlpha(60),
-                  child: Icon(Icons.image_outlined, color: AppColors.accent),
+                  color: AppColors.greenAccent.withAlpha(60),
+                  child: Icon(Icons.image_outlined, color: AppColors.greenAccent),
                 ),
               ),
             ),
@@ -295,33 +298,33 @@ class _TourListItem extends StatelessWidget {
                 children: [
                   Text(
                     tour.title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.primary,
+                      color: context.primary,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${tour.durationDays} día(s) · ${tour.availableSpots} lugares',
-                    style: const TextStyle(fontSize: 13, color: AppColors.accent),
+                    '${tour.durationDays} ${AppTranslations.t('día(s)', lang)} · ${tour.availableSpots} ${AppTranslations.t('lugares', lang)}',
+                    style: TextStyle(fontSize: 13, color: context.accent),
                   ),
                 ],
               ),
             ),
             Text(
-              '\$${tour.price.toStringAsFixed(2)}',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: AppColors.accent,
-              ),
+                '\$${tour.price.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.greenAccent,
+                ),
             ),
             const SizedBox(width: 8),
             IconButton(
               icon: Icon(
                 isFavorite ? Icons.favorite : Icons.favorite_border,
-                color: isFavorite ? Colors.red : AppColors.accent,
+                color: isFavorite ? Colors.red : AppColors.greenAccent,
               ),
               onPressed: onToggleFavorite,
             ),

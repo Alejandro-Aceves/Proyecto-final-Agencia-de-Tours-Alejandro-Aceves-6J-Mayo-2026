@@ -84,7 +84,7 @@ class FirestoreService {
     final snap = await _firestore
         .collection(FirestoreCollections.tours)
         .where(TourFields.destinationId, isEqualTo: destinationId)
-        .get();
+        .get(const GetOptions(source: Source.server));
     return snap.docs
         .map((doc) => TourModel.fromDocumentSnapshot(doc))
         .where((t) => t.isActive)
@@ -152,6 +152,14 @@ class FirestoreService {
         .map((snap) => snap.docs.map((doc) => ReservationModel.fromDocumentSnapshot(doc)).toList());
   }
 
+  Future<List<ReservationModel>> getAllReservations() async {
+    final snap = await _firestore
+        .collection(FirestoreCollections.reservations)
+        .orderBy(ReservationFields.createdAt, descending: true)
+        .get(const GetOptions(source: Source.server));
+    return snap.docs.map((doc) => ReservationModel.fromDocumentSnapshot(doc)).toList();
+  }
+
   Future<List<ReservationModel>> getUserReservations(String userId) async {
     final snap = await _firestore
         .collection(FirestoreCollections.reservations)
@@ -167,6 +175,10 @@ class FirestoreService {
 
   Future<void> updateReservationStatus(String id, String status) async {
     await _firestore.collection(FirestoreCollections.reservations).doc(id).update({ReservationFields.status: status});
+  }
+
+  Future<void> updateReservation(ReservationModel reservation) async {
+    await _firestore.collection(FirestoreCollections.reservations).doc(reservation.id).update(reservation.toMap());
   }
 
   // ── Reviews ────────────────────────────────────────────────────────────────
@@ -207,6 +219,10 @@ class FirestoreService {
 
   Future<void> addReview(ReviewModel review) async {
     await _firestore.collection(FirestoreCollections.reviews).doc(review.id).set(review.toMap());
+  }
+
+  Future<void> updateReview(ReviewModel review) async {
+    await _firestore.collection(FirestoreCollections.reviews).doc(review.id).update(review.toMap());
   }
 
   // ── Favorites ──────────────────────────────────────────────────────────────
@@ -301,6 +317,16 @@ class FirestoreService {
         .update({CartItemFields.participants: participants});
   }
 
+  Future<void> updateCartItem(
+      String userId, String tourId, Map<String, dynamic> fields) async {
+    await _firestore
+        .collection(FirestoreCollections.users)
+        .doc(userId)
+        .collection(FirestoreCollections.cart)
+        .doc(tourId)
+        .update(fields);
+  }
+
   Future<void> removeCartItem(String userId, String tourId) async {
     await _firestore
         .collection(FirestoreCollections.users)
@@ -319,6 +345,12 @@ class FirestoreService {
     for (final doc in snap.docs) {
       await doc.reference.delete();
     }
+  }
+
+  // ── Admin ────────────────────────────────────────────────────────────────────
+
+  Future<void> hardDelete(String collection, String docId) async {
+    await _firestore.collection(collection).doc(docId).delete();
   }
 
   // ── Users ──────────────────────────────────────────────────────────────────
