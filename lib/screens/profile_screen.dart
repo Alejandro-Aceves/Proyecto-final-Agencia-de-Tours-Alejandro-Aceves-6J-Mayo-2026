@@ -125,6 +125,12 @@ class ProfileScreen extends StatelessWidget {
               ),
               const Divider(indent: 24, endIndent: 24),
               _MenuTile(
+                icon: Icons.help_outline,
+                title: t('Ayuda'),
+                onTap: () => context.push('/chat'),
+              ),
+              const Divider(indent: 24, endIndent: 24),
+              _MenuTile(
                 icon: Icons.favorite_border,
                 title: t('Favoritos'),
                 onTap: () => context.push('/favorites-detail'),

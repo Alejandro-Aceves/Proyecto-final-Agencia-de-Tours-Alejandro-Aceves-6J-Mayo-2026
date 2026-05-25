@@ -16,3 +16,4 @@ export 'payment_screen.dart';
 export 'profile_detail_screen.dart';
 export 'info_screen.dart';
 export 'settings_screen.dart';
+export 'chat_screen.dart';

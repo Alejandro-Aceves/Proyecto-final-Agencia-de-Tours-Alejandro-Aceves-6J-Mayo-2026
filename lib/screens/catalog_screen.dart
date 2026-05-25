@@ -20,6 +20,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
   String _searchQuery = '';
   RangeValues _priceRange = const RangeValues(0, 5000);
   bool _isGridMode = false;
+  int? _randomTourIndex;
 
   @override
   void initState() {
@@ -170,6 +171,79 @@ class _CatalogScreenState extends State<CatalogScreen> {
                           onChanged: (values) {
                             setState(() => _priceRange = values);
                           },
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+              Consumer<TourProvider>(
+                builder: (context, provider, _) {
+                  if (provider.tours.isEmpty) return const SizedBox.shrink();
+                  if (_randomTourIndex == null ||
+                      _randomTourIndex! >= provider.tours.length) {
+                    _randomTourIndex = DateTime.now().microsecondsSinceEpoch % provider.tours.length;
+                  }
+                  final tour = provider.tours[_randomTourIndex!];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 28),
+                        Text(
+                          t('Recomendado para ti'),
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: context.primary,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        GestureDetector(
+                          onTap: () => context.push('/booking', extra: tour.id),
+                          child: Container(
+                            height: 260,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              image: DecorationImage(
+                                image: NetworkImage(tour.imageUrl),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            alignment: Alignment.bottomLeft,
+                            padding: const EdgeInsets.all(20),
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: context.primary.withAlpha(200),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    tour.title,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: Theme.of(context).colorScheme.onPrimary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    '${tour.destinationName} — \$${tour.price.toStringAsFixed(0)}',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Theme.of(context).colorScheme.onPrimary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -345,6 +419,136 @@ class _CatalogScreenState extends State<CatalogScreen> {
                 },
               ),
               const SizedBox(height: 32),
+
+              // ── Why choose us ──
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '¿Por qué viajar con nosotros?',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: context.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      height: 100,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: _StatCard(
+                              icon: Icons.flight_takeoff,
+                              value: '150+',
+                              label: 'Destinos',
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _StatCard(
+                              icon: Icons.people,
+                              value: '12K',
+                              label: 'Viajeros',
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _StatCard(
+                              icon: Icons.star,
+                              value: '4.8',
+                              label: 'Calificación',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              // ── Testimonios ──
+              Padding(
+                padding: const EdgeInsets.only(left: 24),
+                child: Text(
+                  'Lo que dicen nuestros viajeros',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: context.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 160,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  children: [
+                    _TestimonialCard(
+                      name: 'Sofía G.',
+                      avatar: 'S',
+                      text: 'Una experiencia increíble. Todo estaba perfectamente organizado.',
+                    ),
+                    const SizedBox(width: 16),
+                    _TestimonialCard(
+                      name: 'Carlos M.',
+                      avatar: 'C',
+                      text: 'Los tours superaron mis expectativas. Volveré a reservar.',
+                    ),
+                    const SizedBox(width: 16),
+                    _TestimonialCard(
+                      name: 'Ana L.',
+                      avatar: 'A',
+                      text: 'La mejor agencia de viajes con la que he trabajado. 100% recomendada.',
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              // ── Tips de viaje ──
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Tips para tu próximo viaje',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: context.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _TipRow(
+                      icon: Icons.wb_sunny_outlined,
+                      text: 'Mejor época para viajar: primavera y otoño.',
+                    ),
+                    const SizedBox(height: 12),
+                    _TipRow(
+                      icon: Icons.luggage_outlined,
+                      text: 'Ligero de equipaje: lleva solo lo esencial.',
+                    ),
+                    const SizedBox(height: 12),
+                    _TipRow(
+                      icon: Icons.language_outlined,
+                      text: 'Aprende frases básicas del idioma local.',
+                    ),
+                    const SizedBox(height: 12),
+                    _TipRow(
+                      icon: Icons.camera_alt_outlined,
+                      text: 'No olvides tu cámara para capturar los momentos.',
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 40),
             ],
           ),
         ),
@@ -424,6 +628,135 @@ class _DestinationCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  final IconData icon;
+  final String value;
+  final String label;
+  const _StatCard({
+    required this.icon,
+    required this.value,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: Colors.white, size: 24),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.white.withAlpha(200),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TestimonialCard extends StatelessWidget {
+  final String name;
+  final String avatar;
+  final String text;
+  const _TestimonialCard({
+    required this.name,
+    required this.avatar,
+    required this.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 240,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border.all(color: context.primary),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 18,
+                backgroundColor: AppColors.primary,
+                child: Text(
+                  avatar,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                name,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: context.primary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 13,
+              color: context.accent,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TipRow extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  const _TipRow({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, color: AppColors.greenAccent, size: 22),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 14,
+              color: context.accent,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

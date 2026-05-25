@@ -74,7 +74,7 @@ class _LifeToursAppState extends State<LifeToursApp> {
         }
 
         if (!isAuthenticated && !isAuthRoute) {
-          return '/login';
+          return '/';
         }
 
         return null;
@@ -126,6 +126,7 @@ class _LifeToursAppState extends State<LifeToursApp> {
         ),
         GoRoute(path: '/info', builder: (_, __) => const InfoScreen()),
         GoRoute(path: '/settings', builder: (_, __) => const SettingsScreen()),
+        GoRoute(path: '/chat', builder: (_, __) => const ChatScreen()),
       ],
     );
   }
@@ -142,6 +143,7 @@ class _LifeToursAppState extends State<LifeToursApp> {
         ChangeNotifierProvider(create: (_) => ReservationProvider()),
         ChangeNotifierProvider(create: (_) => FavoriteProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => ChatProvider()),
       ],
       child: Consumer<SettingsProvider>(
         builder: (context, settings, _) {

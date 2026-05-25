@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:lifetours/theme.dart';
 import 'package:lifetours/providers/providers.dart';
 import 'package:lifetours/i18n/translations.dart';
-import 'package:lifetours/widgets/bottom_nav_bar.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -20,9 +20,14 @@ class SettingsScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 40),
+              const SizedBox(height: 16),
+              IconButton(
+                icon: Icon(Icons.arrow_back, color: context.primary),
+                onPressed: () => context.pop(),
+              ),
+              const SizedBox(height: 8),
               Text(
-                t('settings'),
+                t('Configuración'),
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w600,
@@ -42,7 +47,7 @@ class SettingsScreen extends StatelessWidget {
                       children: [
                         SwitchListTile(
                           title: Text(
-                            t('dark_mode'),
+                            t('Modo oscuro'),
                             style: TextStyle(
                               fontSize: 16,
                               color: context.primary,
@@ -56,14 +61,14 @@ class SettingsScreen extends StatelessWidget {
                         const Divider(height: 1, indent: 16, endIndent: 16),
                         SwitchListTile(
                           title: Text(
-                            t('language'),
+                            t('Idioma'),
                             style: TextStyle(
                               fontSize: 16,
                               color: context.primary,
                             ),
                           ),
                           subtitle: Text(
-                            settings.isEnglish ? t('english') : t('spanish'),
+                            settings.isEnglish ? 'English' : 'Español',
                             style: TextStyle(
                               fontSize: 13,
                               color: context.accent,
@@ -83,7 +88,6 @@ class SettingsScreen extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: const AppBottomNavBar(currentIndex: 3),
     );
   }
 }

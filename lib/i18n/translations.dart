@@ -91,6 +91,7 @@ class AppTranslations {
     'Vista cuadrícula': 'Grid view',
     'Podria interesarte': 'You might like',
     'No hay tours disponibles': 'No tours available',
+    'Recomendado para ti': 'Recommended for you',
 
     // ── Destination Detail ──
     'Destino no encontrado': 'Destination not found',
@@ -176,6 +177,7 @@ class AppTranslations {
     'Inicia sesión para ver tu perfil': 'Sign in to view your profile',
     'Accede al panel de administracion': 'Access the admin panel',
     'Ver panel': 'View panel',
+    'Ayuda': 'Help',
 
     // ── Profile Detail ──
     'Correo': 'Email',
