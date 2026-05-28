@@ -1007,3 +1007,6 @@ El rewrite a `/index.html` es necesario para que GoRouter funcione correctamente
 - No hay sistema de pagos real — el flujo de pago es una simulación educativa.
 - El chat usa una Cloud Function como respaldo; si no está disponible, usa respuestas predefinidas locales.
 - Los datos de Firestore incluyen seed data: 5 destinos, 11 tours, 3 reservas, 3 reseñas, 2 favoritos.
+
+Descarga el apk
+https://github.com/Alejandro-Aceves/Proyecto-final-Agencia-de-Tours-Alejandro-Aceves-6J-Mayo-2026/releases/download/Version_1.0/app-debug.apk
